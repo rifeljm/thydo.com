@@ -1,0 +1,14 @@
+version: '2'
+services:
+  webpack:
+    build:
+      context: .
+    container_name: thydo_webpack
+    command: npm start
+    ports:
+      - "80:80"
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    environment:
+      - NODE_ENV=dev
