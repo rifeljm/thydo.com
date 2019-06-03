@@ -8,6 +8,7 @@ module.exports = {
   output: {
     filename: '[name].chunkhash.bundle.js',
     chunkFilename: '[name].chunkhash.bundle.js',
+    publicPath: '/js',
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -18,7 +19,7 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 80,
-    allowedHosts: ['debian'],
+    allowedHosts: ['debian', 'thydo.com'],
   },
   optimization: {
     splitChunks: {
@@ -41,5 +42,5 @@ module.exports = {
       },
     ],
   },
-  devtool: 'source-map',
+  // devtool: 'source-map',
 };

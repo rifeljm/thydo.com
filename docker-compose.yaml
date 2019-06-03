@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   webpack:
     build:
@@ -6,9 +6,56 @@ services:
     container_name: thydo_webpack
     command: npm start
     ports:
-      - "80:80"
+      - "80"
     volumes:
       - '.:/app'
       - '/app/node_modules'
     environment:
       - NODE_ENV=dev
+    networks:
+      - default
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: thydo_nginx
+    ports:
+      - "80:80"
+    links:
+      - server
+      - webpack
+    networks:
+      - default
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/site.conf
+
+  server:
+    build:
+      context: ./server
+    container_name: thydo_server
+    ports:
+      - "80"
+    volumes:
+      - './server:/server'
+      - '/server/node_modules'
+    environment:
+      - NODE_ENV=dev
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - PGUSER=thydo
+      - PGPASSWORD=thydo
+      - PGDATABASE=thydo
+      - PGHOST=postgres
+    networks:
+      - default
+
+  postgres:
+    container_name: thydo_postgres
+    image: postgres:11.3-alpine
+    volumes:
+      - /pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    environment:
+      - POSTGRES_PASSWORD=thydo
