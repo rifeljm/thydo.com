@@ -30,17 +30,19 @@ class CalendarDay extends React.PureComponent {
     if (this.isToday(this.props.day)) {
       this.props.setTodaysDOM(this.dom);
     }
-    if (this.todoList) {
+    if (typeof this.props.day === 'string') {
       this.createSortable();
     }
   }
 
   componentWillUnmount() {
-    this.sortable.destroy();
+    if (typeof this.props.day === 'string') {
+      Sortable.destroy();
+    }
   }
 
   createSortable() {
-    this.sortable = new Sortable(this.todoList, {
+    this.sortable = Sortable.create(this.todoList, {
       group: 'todos',
       onSort: this.onSort.bind(this),
     });
