@@ -43,16 +43,15 @@ class App extends React.Component {
     this.state.endDay = this.state.startDay = monday;
     this.addWeeks(4);
     this.addWeeks(-4);
-    const todosResponse = await axios.get('/api/todos');
-    const todos = todosResponse.data;
+  }
+
+  componentDidMount() {
+    const todos = JSON.parse(document.getElementById('todos_data').innerHTML);
     Object.keys(todos).forEach(day => {
       todos[day].forEach(todo => {
         this.createTodo({ ...todo, day });
       });
     });
-  }
-
-  componentDidMount() {
     if (this.headerRef) {
       this.headerRef.current.dom.style.top = 0;
     }

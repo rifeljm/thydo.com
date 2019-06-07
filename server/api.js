@@ -127,8 +127,11 @@ api.postTodo = async (req, res) => {
   }
 };
 
-api.getTodos = async (req, res) => {
+api._getTodos = async (req, res) => {
   const cookie = req.cookies.thydo_user;
+  if (!cookie) {
+    return {};
+  }
   let sql;
   let todosResult = {};
   sql = `
@@ -162,6 +165,11 @@ api.getTodos = async (req, res) => {
       todosResponse[day].push(obj);
     });
   }
+  return todosResponse;
+};
+
+api.getTodos = async (req, res) => {
+  const todosResponse = await api._getTodos(req, res);
   res.send(todosResponse);
 };
 

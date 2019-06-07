@@ -8,7 +8,7 @@ exports.randomString = length => {
   return result;
 };
 
-exports.indexHTML = () => {
+exports.indexHTML = json => {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -20,6 +20,7 @@ exports.indexHTML = () => {
     <link href="https://fonts.googleapis.com/css?family=Domine&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,400&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <script type="application/json" id="todos_data">${json}</script>
   </head>
   <body>
     <div id="main" />

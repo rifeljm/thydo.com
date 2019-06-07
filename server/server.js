@@ -28,13 +28,13 @@ wss.on('connection', ws => {
 app.get('/', async (req, res) => {
   if (req.query && req.query.code) {
     const userInfo = await google.getGoogleAccountFromCode(req.query.code);
-    // console.log('USERINFO: ==========>', userInfo);
     const createUser = await api.sso(userInfo);
   }
   if (!req.cookies.thydo_user) {
     res.cookie('thydo_user', randomString(16), { maxAge: 365 * 24 * 60 * 60, httpOnly: true });
   }
-  res.send(indexHTML());
+  const todos = await api._getTodos(req, res);
+  res.send(indexHTML(JSON.stringify(todos)));
 });
 
 app.post('/api/todo', api.authenticateMiddleware, api.postTodo);
