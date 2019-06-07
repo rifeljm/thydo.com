@@ -37,6 +37,10 @@ class Todo extends React.Component {
       evt.preventDefault();
       this.props.saveTodo(this.todoInput.value);
     }
+    if (evt.keyCode === 9) {
+      evt.preventDefault();
+      this.props.saveTodo(this.todoInput.value, { createNew: true });
+    }
   }
 
   render() {

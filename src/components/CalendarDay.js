@@ -97,11 +97,14 @@ class CalendarDay extends React.PureComponent {
     this.setState({ todos });
   }
 
-  async saveTodo(title) {
+  async saveTodo(title, obj) {
     const response = await axios.post('/api/todo', { day: this.props.day, title });
     if (response.status === 200) {
-      this.setState({
-        todos: this.state.todos.filter(todo => todo.id !== -1).concat(response.data),
+      const todos = this.state.todos.filter(todo => todo.id !== -1).concat(response.data);
+      this.setState({ todos }, () => {
+        if (obj && obj.createNew) {
+          this.createNewTodo();
+        }
       });
     }
   }
@@ -157,7 +160,8 @@ class CalendarDay extends React.PureComponent {
   }
 
   createNewTodo(evt) {
-    if (evt.clientY > 50 && !this.preventClick && this.state.todos.map(todo => todo.id).indexOf(-1) === -1) {
+    const todoExists = this.state.todos.map(todo => todo.id).indexOf(-1) > 1;
+    if ((!evt || (evt.clientY > 50 && !this.preventClick)) && !todoExists) {
       const todos = this.state.todos.concat({ id: -1 });
       this.setState({ todos });
     }
@@ -207,6 +211,7 @@ class CalendarDay extends React.PureComponent {
           mouseEnterTodo={this.mouseEnterTodo.bind(this)}
           mouseLeaveTodo={this.mouseLeaveTodo.bind(this)}
           cancelTodo={this.cancelTodo.bind(this)}
+          createNewTodo={this.createNewTodo.bind(this)}
         />
       );
     });
