@@ -193,4 +193,16 @@ api.putSortDay = async (req, res) => {
   res.send([day, todoIds]);
 };
 
+api.schemaExists = async cookie => {
+  sql = `
+    SELECT schema_name
+      FROM information_schema.schemata
+     WHERE schema_name = $1`;
+  const result = await pool.query(sql, [cookie]);
+  if (result && result.rows && result.rows.length) {
+    return true;
+  }
+  return false;
+};
+
 module.exports = api;

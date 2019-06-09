@@ -37,7 +37,7 @@ class CalendarDay extends React.PureComponent {
 
   componentWillUnmount() {
     if (typeof this.props.day === 'string') {
-      Sortable.destroy();
+      this.sortable.destroy();
     }
   }
 

@@ -2,9 +2,10 @@ import { hot } from 'react-hot-loader/root';
 import React from 'react';
 import { addDays, format } from 'date-fns';
 import axios from 'axios';
-
+import { Store } from './Store.js';
 import CalendarDay from './CalendarDay.js';
 import Header from './Header.js';
+import { dayNumbersToObjects } from '../common/utils.js';
 
 import css from '../css/App.css';
 
@@ -12,205 +13,114 @@ history.scrollRestoration = 'manual';
 
 const dayHeight = 156;
 
-const dayNumbersToObjects = (number, day) => {
-  return number.map(number => {
-    return {
-      number,
-      day,
-    };
+const pubSubDays = {};
+const registerDropped = {};
+let startDay;
+let endDay;
+let headerPublish = null;
+let init;
+let registerDroppedCallback;
+let todaysDOM;
+let scrolledToToday;
+let thisActions;
+let appDispatch;
+
+function headerSubscribe(cb) {
+  headerPublish = cb;
+}
+
+function todayClick() {
+  console.log('yahoooooo');
+}
+
+function registerDroppedList(obj) {
+  registerDroppedCallback = obj;
+}
+
+function moveTodoToDroppedList(todo, newIndex, oldIndex) {
+  registerDroppedCallback.cb(todo, newIndex);
+  registerDroppedCallback = null;
+}
+
+function subscribeDay(day, cb) {
+  pubSubDays[day] = cb;
+}
+
+function dayAction(actionObject) {
+  headerPublish(actionObject);
+}
+
+function setTodaysDOM(domElement) {
+  todaysDOM = domElement;
+}
+
+function scrollToToday(initial) {
+  const middle = window.innerHeight / 2;
+  const scrollTo = todaysDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
+  window.scroll(0, scrollTo);
+}
+
+function renderDays(state) {
+  return state.dates.map((week, idx) => {
+    const days = week.map((day, idx) => {
+      return (
+        <CalendarDay
+          subscribe={subscribeDay}
+          dayAction={dayAction}
+          setTodaysDOM={setTodaysDOM}
+          key={typeof day === 'object' ? day.number : day}
+          day={day}
+          idx={idx}
+          registerDroppedList={registerDroppedList}
+          moveTodoToDroppedList={moveTodoToDroppedList}
+        />
+      );
+    });
+    let trKey;
+    if (week[0].length > 1) trKey = week[0];
+    if (week[6].length > 1) trKey = week[6];
+    if (typeof week[0] === 'object') {
+      trKey = `${week[0].day}_empty`;
+    }
+    return <css.Tr key={trKey}>{days}</css.Tr>;
   });
-};
+}
 
-class App extends React.Component {
-  state = {
-    dates: [],
-    startDay: null,
-    endDay: null,
-  };
-
-  constructor(props) {
-    super(props);
-    this.headerRef = React.createRef();
-    this.pubSubDays = {};
-    this.registerDropped = {};
+function onScrollEvent(evt) {
+  this.scrollHeight = document.body.scrollHeight;
+  if (window.pageYOffset / document.body.scrollHeight < 0.1) {
+    appDispatch({ type: 'ADD_WEEKS_BEFORE', weekCount: -4 });
+  } else if (window.pageYOffset / (document.body.scrollHeight - window.innerHeight) > 0.9) {
+    appDispatch({ type: 'ADD_WEEKS_AFTER', weekCount: 4 });
   }
+}
 
-  async componentWillMount() {
-    const today = new Date();
-    const dayInWeek = today.getDay();
-    const daysSinceMonday = (dayInWeek + 6) % 7;
-    const monday = new Date(today.setDate(today.getDate() - daysSinceMonday));
-    this.state.endDay = this.state.startDay = monday;
-    this.addWeeks(4);
-    this.addWeeks(-4);
-  }
+function App() {
+  const { state, dispatch } = React.useContext(Store);
+  appDispatch = dispatch;
+  const headerRef = React.useRef();
 
-  componentDidMount() {
-    const todos = JSON.parse(document.getElementById('todos_data').innerHTML);
-    Object.keys(todos).forEach(day => {
-      todos[day].forEach(todo => {
-        this.createTodo({ ...todo, day });
-      });
-    });
-    if (this.headerRef) {
-      this.headerRef.current.dom.style.top = 0;
+  React.useEffect(() => {
+    if (!init) {
+      dispatch({ type: 'INIT_CALENDAR' });
+      init = true;
+    } else if (!scrolledToToday) {
+      /* initial scroll to today */
+      scrollToToday();
+      scrolledToToday = true;
+      window.addEventListener('scroll', onScrollEvent);
     }
-    this.onScroll = this.onScrollEvent.bind(this);
-    window.addEventListener('scroll', this.onScroll);
-    this.scrollToToday(true);
-    const ws = new WebSocket('ws://thydo.com');
-    ws.onopen = () => {
-      ws.send('Message to send');
-    };
-    ws.onmessage = function(evt) {
-      console.log('Message received:', evt.data);
-    };
-  }
+  });
 
-  createTodo(obj) {
-    this.pubSubDays[obj.day](obj);
-  }
-
-  subscribeDay(day, cb) {
-    this.pubSubDays[day] = cb;
-  }
-
-  onScrollEvent(evt) {
-    if (this.toTodayInterval) return;
-    if (window.pageYOffset / document.body.scrollHeight < 0.1) {
-      const heightBefore = document.body.scrollHeight;
-      const pageYOffset = window.pageYOffset;
-      this.addWeeks(-4, true);
-      if (window.pageYOffset - pageYOffset !== document.body.scrollHeight - heightBefore) {
-        window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
-      }
-    } else if (window.pageYOffset + 100 > document.body.scrollHeight - window.innerHeight) {
-      this.addWeeks(4, true);
-    }
-  }
-
-  addWeeks(weeks, force) {
-    const startDay = weeks > 0 ? this.state.endDay : addDays(this.state.startDay, weeks * 7);
-    const newDaysArray = [...Array(Math.abs(weeks) * 7).keys()].map(x => format(addDays(startDay, x), 'YYYY-MM-DD'));
-    if (weeks > 0) {
-      this.state.endDay = addDays(this.state.endDay, weeks * 7);
-    } else {
-      this.state.startDay = addDays(this.state.startDay, weeks * 7);
-    }
-    const addElements = newDaysArray.reduce((prev, day, idx) => {
-      if (idx % 7 === 0) {
-        if (new Date(day).getDay() === 1 && day.substring(8) == '01') {
-          const dayNumbers = dayNumbersToObjects([...Array(7).keys()], day);
-          prev.push(dayNumbers);
-        }
-        prev.push([day]);
-      } else {
-        if (day.substring(8) == '01') {
-          const rightDayNumbers = [...Array(7 - (idx % 7)).keys()].map(x => x + (idx % 7));
-          prev[prev.length - 1] = prev[prev.length - 1].concat(dayNumbersToObjects(rightDayNumbers, day));
-          const leftDayNumbers = dayNumbersToObjects([...Array(idx % 7).keys()], day);
-          prev.push(leftDayNumbers.concat(day));
-        } else {
-          prev[prev.length - 1].push(day);
-        }
-      }
-      return prev;
-    }, []);
-    let dates;
-    if (force) {
-      const dates = weeks > 0 ? this.state.dates.concat(addElements) : addElements.concat(this.state.dates);
-      this.setState({
-        endDay: this.state.endDay,
-        startDay: this.state.startDay,
-        dates,
-      });
-    } else {
-      weeks > 0 ? this.state.dates.push.apply(this.state.dates, addElements) : this.state.dates.unshift.apply(this.state.dates, addElements);
-    }
-  }
-
-  scrollToToday(initial) {
-    const middle = window.innerHeight / 2;
-    const scrollTo = this.todaysDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
-    if (initial) {
-      window.scroll(0, scrollTo);
-      return;
-    }
-    let x = 0;
-    let tempScroll = window.pageYOffset;
-    const step = (scrollTo - window.pageYOffset) / 50;
-    this.toTodayInterval = setInterval(() => {
-      x++;
-      tempScroll = tempScroll + step;
-      window.scroll(0, tempScroll);
-      if (x >= 50) {
-        clearInterval(this.toTodayInterval);
-        this.toTodayInterval = null;
-      }
-    }, 8);
-  }
-
-  setTodaysDOM(domElement) {
-    this.todaysDOM = domElement;
-  }
-
-  todayClick() {
-    if (!this.toTodayInterval) {
-      this.scrollToToday();
-    }
-  }
-
-  headerSubscribe(cb) {
-    this.headerPublish = cb;
-  }
-
-  dayAction(actionObject) {
-    this.headerPublish(actionObject);
-  }
-
-  registerDroppedList(obj) {
-    this.registerDroppedCallback = obj;
-  }
-
-  moveTodoToDroppedList(todo, newIndex, oldIndex) {
-    this.registerDroppedCallback.cb(todo, newIndex);
-    this.registerDroppedCallback = null;
-  }
-
-  renderDays() {
-    return this.state.dates.map((week, idx) => {
-      const days = week.map((day, idx) => {
-        return (
-          <CalendarDay
-            subscribe={this.subscribeDay.bind(this)}
-            dayAction={this.dayAction.bind(this)}
-            setTodaysDOM={this.setTodaysDOM.bind(this)}
-            key={typeof day === 'object' ? day.number : day}
-            day={day}
-            idx={idx}
-            registerDroppedList={this.registerDroppedList.bind(this)}
-            moveTodoToDroppedList={this.moveTodoToDroppedList.bind(this)}
-          />
-        );
-      });
-      let trIdx = idx;
-      if (week[0].length > 1) trIdx = week[0];
-      if (week[6].length > 1) trIdx = week[6];
-      return <css.Tr key={trIdx}>{days}</css.Tr>;
-    });
-  }
-
-  render() {
-    return (
-      <React.Fragment>
-        <css.GlobalStyle />
-        <Header ref={this.headerRef} sub={this.headerSubscribe.bind(this)} todayClick={this.todayClick.bind(this)} />
-        <css.MainTableWrapper>
-          <css.Table>{this.renderDays()}</css.Table>
-        </css.MainTableWrapper>
-      </React.Fragment>
-    );
-  }
+  return (
+    <React.Fragment>
+      <css.GlobalStyle />
+      <Header ref={headerRef} sub={headerSubscribe} todayClick={todayClick} />
+      <css.MainTableWrapper>
+        <css.Table>{renderDays(state)}</css.Table>
+      </css.MainTableWrapper>
+    </React.Fragment>
+  );
 }
 
 export default hot(App);

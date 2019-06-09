@@ -21,6 +21,7 @@ css.HeaderWrapper = styled.div`
   z-index: 6;
   line-height: 50px;
   // animation: ${slide} 0.2s linear;
+  top: 0;
 `;
 
 css.Button = styled.div`

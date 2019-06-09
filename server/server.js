@@ -30,10 +30,15 @@ app.get('/', async (req, res) => {
     const userInfo = await google.getGoogleAccountFromCode(req.query.code);
     const createUser = await api.sso(userInfo);
   }
+  let todos = {};
   if (!req.cookies.thydo_user) {
     res.cookie('thydo_user', randomString(16), { maxAge: 365 * 24 * 60 * 60, httpOnly: true });
+  } else {
+    schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
+    if (schemaExistsForCookie) {
+      todos = await api._getTodos(req, res);
+    }
   }
-  const todos = await api._getTodos(req, res);
   res.send(indexHTML(JSON.stringify(todos)));
 });
 
