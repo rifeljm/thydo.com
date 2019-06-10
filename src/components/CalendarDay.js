@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getDay, format } from 'date-fns';
+import { getDay, getMonth, addDays, format } from 'date-fns';
+import locale from 'date-fns/locale/sl';
 import axios from 'axios';
 import Sortable from 'sortablejs';
 
 import Todo from './Todo.js';
 
-import css from '../css/CalendarDay.css';
-
-const weekDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+import css from '../css/CalendarDay';
 
 class CalendarDay extends React.PureComponent {
   static propTypes = {
@@ -19,12 +18,6 @@ class CalendarDay extends React.PureComponent {
   state = {
     todos: [],
   };
-
-  componentWillMount() {
-    if (typeof this.props.day === 'string') {
-      this.props.subscribe(this.props.day, this.updateDay.bind(this));
-    }
-  }
 
   componentDidMount() {
     if (this.isToday(this.props.day)) {
@@ -184,9 +177,12 @@ class CalendarDay extends React.PureComponent {
     });
   }
 
+  month() {
+    return parseInt(this.props.day.split('-')[1]);
+  }
+
   renderMonthName() {
-    const monthColor = this.dayColor();
-    return <css.Month color={monthColor}>{format(this.props.day, 'MMM YY')}</css.Month>;
+    return <css.Month colorIdx={getMonth(this.props.day)}>{format(this.props.day, 'MMM YY', { locale })}</css.Month>;
   }
 
   renderMonth() {
@@ -222,13 +218,18 @@ class CalendarDay extends React.PureComponent {
   render() {
     if (typeof this.props.day === 'object') {
       const color = this.isThisMonth(this.props.day.day) && this.isThisDayInWeek(this.props.day.number) ? this.dayColor(true) : '#444';
-      return <css.DayOfWeek color={color}>{weekDays[this.props.day.number]}</css.DayOfWeek>;
+      return (
+        <css.DayOfWeek idx={this.props.idx} color={color}>
+          {format(addDays('1975-09-22', this.props.idx), 'dddd', { locale })}
+        </css.DayOfWeek>
+      );
     }
     const monthColor = this.dayColor();
     return (
       <css.Td
         isToday={this.isToday(this.props.day)}
-        color={monthColor}
+        colorIdx={getMonth(this.props.day)}
+        dayWeekIdx={this.props.idx}
         ref={el => {
           this.dom = el;
         }}

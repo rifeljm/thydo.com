@@ -3,7 +3,7 @@ import { _tr } from '../common/utils.js';
 // import PropTypes from 'prop-types';
 import { format, differenceInCalendarDays } from 'date-fns';
 
-import css from '../css/Header.css';
+import css from '../css/Header.js';
 
 class Header extends React.Component {
   state = {

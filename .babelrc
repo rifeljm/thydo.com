@@ -5,6 +5,8 @@
     "react"
   ],
   "plugins": [
+    "transform-export-default-name",
+    "styled-components",
     "react-hot-loader/babel"
   ]
 }

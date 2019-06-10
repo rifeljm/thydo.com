@@ -2,9 +2,13 @@ import styled, { createGlobalStyle } from 'styled-components';
 
 const css = {};
 
+const fontFamily = `'Roboto', sans-serif`;
 // const fontFamily = `'Domine', sans-serif`;
-// const fontFamily = `'Roboto', sans-serif`;
-const fontFamily = `'Lato', sans-serif`;
+// const fontFamily = `sans-serif`;
+// const fontFamily = `'Lato', sans-serif`;
+// const fontFamily = `'Oswald', sans-serif`;
+// const fontFamily = `'Montserrat', sans-serif`;
+// const fontFamily = `'Lucida Grande'`;
 
 css.GlobalStyle = createGlobalStyle`
   body {

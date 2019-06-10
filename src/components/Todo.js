@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import autosize from 'autosize';
 
-import css from '../css/Todo.css';
+import css from '../css/Todo.js';
 
 class Todo extends React.Component {
   static propTypes = {

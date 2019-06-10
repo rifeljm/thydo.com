@@ -7,6 +7,7 @@ const initialState = {
   dates: [],
   startDay: null,
   endDay: null,
+  todos: [],
 };
 
 const addElements = (weekCount, startDay) => {
@@ -65,6 +66,9 @@ function reducer(state, action) {
   switch (action.type) {
     case 'INIT_CALENDAR': {
       return Object.assign({}, state, initCalendar());
+    }
+    case 'LOAD_INLINE_TODOS': {
+      return Object.assign({}, state, { todos: action.todos });
     }
     case 'ADD_WEEKS_AFTER': {
       const { newElements, endDay } = addWeeks(action.weekCount, state.startDay, state.endDay);
