@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { rgba, lighten, setLightness } from 'polished';
+import { rgba, setLightness } from 'polished';
 
 const css = {};
 
@@ -31,24 +31,27 @@ css.Td = styled.div`
   background-color: ${props => (props.isToday ? setLightness(0.95, monthColors[props.colorIdx]) : '#fdfdfd')};
 `;
 
+css.emptyTd = styled.div`
+  display: table-cell;
+  height: 150px;
+`;
+
 css.BottomRightDay = styled.div`
   position: absolute;
   bottom: -3px;
   right: 5px;
   font-size: 80px;
-  color: ${props => (props.isToday ? '#fff' : rgba(props.color, 0.25))};
+  color: ${props => (props.isToday ? '#fff' : rgba(props.dayInWeekIdx > 4 ? '#bbb' : monthColors[props.monthIdx], 0.25))};
 `;
 
 css.DayOfWeek = styled.div`
-  display: table-cell;
-  height: 150px;
+  position: absolute;
+  top: -30px;
   border: 0;
-  vertical-align: bottom;
-  width: calc(100% / 7);
   text-align: right;
-  padding: 5px 10px;
   font-size: 18px;
-  color: ${props => (props.color ? props.color : '#444')};
+  right: 5px;
+  color: ${props => (props.isDayOfWeekInColor ? monthColors[props.colorIdx] : '#666')};
 `;
 
 css.Month = styled.div`
@@ -58,8 +61,8 @@ css.Month = styled.div`
   white-space: nowrap;
   color: #fff;
   left: -2px;
-  padding: 0 10px 5px 10px;
-  background-color: ${props => setLightness(0.6, monthColors[props.colorIdx])};
+  padding: 5px 10px 5px 10px;
+  background-color: ${props => setLightness(0.64, monthColors[props.colorIdx])};
   border-radius: 5px;
 `;
 

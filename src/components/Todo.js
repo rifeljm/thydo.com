@@ -2,80 +2,88 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import autosize from 'autosize';
 
+import { Store } from './Store.js';
+
 import css from '../css/Todo.js';
 
-class Todo extends React.Component {
-  static propTypes = {
-    color: PropTypes.string.isRequired,
-    todo: PropTypes.object.isRequired,
-    idx: PropTypes.number.isRequired,
-    mouseEnterTodo: PropTypes.func.isRequired,
-    mouseLeaveTodo: PropTypes.func.isRequired,
-  };
+Todo.propTypes = {
+  day: PropTypes.string.isRequired,
+  idx: PropTypes.number.isRequired,
+  todo: PropTypes.object.isRequired,
+  mouseEnterTodo: PropTypes.func.isRequired,
+  mouseLeaveTodo: PropTypes.func.isRequired,
+};
 
-  state = {
-    mouseX: null,
-    mouseY: null,
-    width: null,
-    leftDistance: null,
-    topDistance: null,
-  };
+function Todo({ day, idx, todo, mouseEnterTodo, mouseLeaveTodo }) {
+  const todoRef = React.useRef();
+  const todoInputRef = React.useRef();
+  const { dispatch, actions } = React.useContext(Store);
 
-  componentDidMount() {
-    if (this.props.todo.id === -1) {
-      autosize(this.todoInput);
-      this.todoInput.focus();
+  React.useEffect(() => {
+    if (todo.id === -1) {
+      autosize(todoInputRef.current);
+      todoInputRef.current.focus();
+    }
+  }, []);
+
+  function todoInputKeyUp(evt) {
+    if ([27, 13, 9].indexOf(evt.keyCode) > -1) {
+      evt.preventDefault();
     }
   }
 
-  async todoInputKeyDown(evt) {
+  function todoInputKeyDown(evt) {
+    let value = todoInputRef.current.value;
     if (evt.keyCode === 27) {
-      this.props.cancelTodo();
+      dispatch({ type: 'REMOVE_NEW_TODO_INPUT', day });
       evt.preventDefault();
     }
-    if (evt.keyCode === 13) {
+    if (evt.keyCode === 13 && !evt.shiftKey) {
       evt.preventDefault();
-      this.props.saveTodo(this.todoInput.value);
+      if (value) {
+        todoInputRef.current.value = '';
+        actions.saveTodo(day, value);
+      } else {
+        /* empty input means cancel todo input */
+        dispatch({ type: 'REMOVE_NEW_TODO_INPUT', day });
+      }
     }
     if (evt.keyCode === 9) {
       evt.preventDefault();
-      this.props.saveTodo(this.todoInput.value, { createNew: true });
+      if (value) {
+        todoInputRef.current.value = '';
+        actions.saveTodo(day, value, { createNew: true });
+      }
     }
   }
 
-  render() {
-    let textOrInput = this.props.todo.title;
-    if (this.props.todo.id === -1) {
-      textOrInput = (
-        <css.TodoInput
-          rows={1}
-          ref={el => {
-            this.todoInput = el;
-          }}
-          type="text"
-        />
-      );
-    }
-
-    return (
-      <css.Todo
-        ref={el => {
-          this.todo = el;
-        }}
-        color={this.props.color}
-        onMouseEnter={() => this.props.mouseEnterTodo(this.props.idx)}
-        onMouseLeave={() => this.props.mouseLeaveTodo(this.props.idx)}
-        hidden={this.props.todo.clone}
-      >
-        <css.TodoDash hidden={this.props.todo.clone}>{this.props.idx + 1}.</css.TodoDash>
-        {this.props.todo.id === -1 ? (
-          <css.TodoInputCell onKeyDown={this.todoInputKeyDown.bind(this)}>{textOrInput}</css.TodoInputCell>
-        ) : (
-          <css.TodoText hidden={this.props.todo.clone}>{textOrInput}</css.TodoText>
-        )}
-      </css.Todo>
+  let textOrInput = todo.title;
+  if (todo.id === -1) {
+    textOrInput = (
+      <css.TodoInput
+        className="todo-input"
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+        rows={1}
+        ref={todoInputRef}
+        type="text"
+      />
     );
   }
+  return (
+    <css.Todo ref={todoRef} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
+      <css.TodoDash grey={todo.id < -1}>{idx + 1}.</css.TodoDash>
+      {todo.id === -1 ? (
+        <css.TodoInputCell onKeyDown={todoInputKeyDown} onKeyUp={todoInputKeyUp}>
+          {textOrInput}
+        </css.TodoInputCell>
+      ) : (
+        <css.TodoText grey={todo.id < -1}>{textOrInput}</css.TodoText>
+      )}
+    </css.Todo>
+  );
 }
 
 export default Todo;

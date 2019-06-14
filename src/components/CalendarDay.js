@@ -1,58 +1,115 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getDay, getMonth, addDays, format } from 'date-fns';
+import { getDay, getMonth, format, differenceInCalendarDays, addDays } from 'date-fns';
 import locale from 'date-fns/locale/sl';
-import axios from 'axios';
 import Sortable from 'sortablejs';
 
+import { Store } from './Store.js';
 import Todo from './Todo.js';
+import { _tr, upFirst } from '../common/utils.js';
 
 import css from '../css/CalendarDay';
 
-class CalendarDay extends React.PureComponent {
-  static propTypes = {
-    day: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
-    setTodaysDOM: PropTypes.func.isRequired,
-  };
+let sortable;
+let preventClick = false;
 
-  state = {
-    todos: [],
-  };
+function nowDate() {
+  return new Date();
+}
 
-  componentDidMount() {
-    if (this.isToday(this.props.day)) {
-      this.props.setTodaysDOM(this.dom);
-    }
-    if (typeof this.props.day === 'string') {
-      this.createSortable();
-    }
+function isToday(day) {
+  return day === format(nowDate(), 'YYYY-MM-DD');
+}
+
+function isThisMonth(day) {
+  return day.substring(0, 7) === format(nowDate(), 'YYYY-MM');
+}
+
+function isThisDayInWeek(number) {
+  return getDay(nowDate()) === (number + 1) % 7;
+}
+
+function mouseEnterTodo() {
+  preventClick = true;
+}
+
+function mouseLeaveTodo() {
+  preventClick = false;
+}
+
+function renderMonthName(day) {
+  let monthFormat = 'MMMM YYYY';
+  if (parseInt(day.substring(8), 10) > 6) monthFormat = 'MMM YY';
+  return <css.Month colorIdx={getMonth(day)}>{upFirst(format(day, monthFormat, { locale }))}</css.Month>;
+}
+
+function renderMonth(day, idx) {
+  if ((idx === 0 && parseInt(day.substring(8), 10) < 8) || (parseInt(day.substring(8), 10) === 1 && idx < 1)) {
+    return renderMonthName(day);
   }
+}
 
-  componentWillUnmount() {
-    if (typeof this.props.day === 'string') {
-      this.sortable.destroy();
+function renderDayDistance(day) {
+  const diff = differenceInCalendarDays(day, format(new Date(), 'YYYY-MM-DD'));
+  let text;
+  if (diff === 1) text = _tr('Tomorrow');
+  if (diff === -1) text = _tr('Yesterday');
+  if (diff < -1) text = `${Math.abs(diff)} ${_tr('days ago')}`;
+  if (diff > 1) text = `${diff} ${_tr('days away')}`;
+  return text;
+}
+
+/*======================================================================*/
+/* MAIN CLASS
+/*======================================================================*/
+function CalendarDay({ day, setDayDOM, idx, registerDroppedList, moveTodoToDroppedList }) {
+  const domRef = React.useRef();
+  const todoListRef = React.useRef();
+  const { state, actions } = React.useContext(Store);
+
+  let todos = state.todos[day] || [];
+
+  React.useEffect(() => {
+    setDayDOM(domRef.current, day, isToday(day));
+    if (typeof day === 'string') {
+      createSortable();
     }
-  }
+    /* Unmount */
+    return () => {
+      if (typeof day === 'string') {
+        // sortable.destroy();
+      }
+    };
+  }, []);
 
-  createSortable() {
-    this.sortable = Sortable.create(this.todoList, {
+  function createSortable() {
+    sortable = Sortable.create(todoListRef.current, {
       group: 'todos',
-      onSort: this.onSort.bind(this),
+      onSort: onSort,
     });
   }
 
-  saveTodoOrder(day, todos) {
-    axios.put('/api/sort-day', {
-      day,
-      todoIds: todos.map(todo => todo.id),
-    });
+  function dayAction({ action, day }) {
+    document.querySelector('.header-distance').innerText = action === 'enter' ? renderDayDistance(day) : '';
   }
 
-  async onSort(evt) {
+  function applySort(droppedTodo, newIndex) {
+    const newTodos = todos.reduce((prev, todo, idx) => {
+      return newIndex === idx ? prev.concat(droppedTodo).concat(todo) : prev.concat(todo);
+    }, []);
+    if (newIndex >= newTodos.length) {
+      newTodos.push(droppedTodo);
+    }
+    actions.saveTodoListOrder(day, newTodos);
+    // saveTodoOrder(day, todos);
+  }
+
+  function onSort(evt) {
+    let todos = state.todos[day];
     /* SORT ON THE SAME LIST (todos length in state is the same as "this sortable" element count */
-    if (evt.from === this.todoList && this.state.todos.length === evt.from.childElementCount) {
-      const elem = this.state.todos[evt.oldIndex];
-      const todos = this.state.todos.reduce((prev, todo, idx) => {
+    if (evt.from === todoListRef.current && todos.length === evt.from.childElementCount) {
+      const elem = todos[evt.oldIndex];
+      const newTodos = todos.reduce((prev, todo, idx) => {
         if (elem === todo) {
           return prev;
         }
@@ -61,195 +118,78 @@ class CalendarDay extends React.PureComponent {
         }
         return prev.concat(todo);
       }, []);
-      this.setState({ todos });
-      this.saveTodoOrder(this.props.day, todos);
+      actions.saveTodoOrder(day, newTodos);
     }
-
     /* handle dropped list */
-    if (evt.from !== this.todoList && this.state.todos.length < evt.to.childElementCount) {
+    if (evt.from !== todoListRef.current && todos.length < evt.to.childElementCount) {
       evt.item.remove();
-      this.props.registerDroppedList({ cb: this.applySort.bind(this), day: this.props.day });
+      registerDroppedList({ cb: applySort, day });
     }
     /* handle source (missing todo) list */
-    if (evt.from === this.todoList && this.state.todos.length > evt.from.childElementCount) {
-      const removedTodo = this.state.todos[evt.oldIndex];
-      evt.from.appendChild(evt.item);
-      this.state.todos.splice(evt.oldIndex, 1);
-      this.props.moveTodoToDroppedList(removedTodo, evt.newIndex, evt.oldIndex);
-      this.forceUpdate();
-      this.saveTodoOrder(this.props.day, this.state.todos);
+    if (evt.from === todoListRef.current && todos.length > evt.from.childElementCount) {
+      const removedTodo = todos[evt.oldIndex];
+      evt.from.appendChild(evt.item); /* yes, add it back, because react's re-render will fail on mutated DOM */
+      todos.splice(evt.oldIndex, 1);
+      moveTodoToDroppedList(removedTodo, evt.newIndex, evt.oldIndex);
+      actions.saveTodoListOrder(day, todos);
     }
   }
 
-  applySort(droppedTodo, newIndex) {
-    const todos = this.state.todos.reduce((prev, todo, idx) => {
-      return newIndex === idx ? prev.concat(droppedTodo).concat(todo) : prev.concat(todo);
-    }, []);
-    if (newIndex >= todos.length) {
-      todos.push(droppedTodo);
-    }
-    this.saveTodoOrder(this.props.day, todos);
-    this.setState({ todos });
-  }
-
-  async saveTodo(title, obj) {
-    const response = await axios.post('/api/todo', { day: this.props.day, title });
-    if (response.status === 200) {
-      const todos = this.state.todos.filter(todo => todo.id !== -1).concat(response.data);
-      this.setState({ todos }, () => {
-        if (obj && obj.createNew) {
-          this.createNewTodo();
-        }
-      });
-    }
-  }
-
-  updateDay(obj) {
-    this.state.todos.map((prev, todo) => {
-      return todo.id === obj.id ? todo : prev;
-    });
-    if (this.state.todos.map(todo => todo.id).indexOf(obj.id) === -1) {
-      this.state.todos = this.state.todos.concat(obj);
-    }
-    this.forceUpdate();
-  }
-
-  nowDate() {
-    return new Date();
-  }
-
-  isToday(day) {
-    return day === format(this.nowDate(), 'YYYY-MM-DD');
-  }
-
-  isThisMonth(day) {
-    return day.substring(0, 7) === format(this.nowDate(), 'YYYY-MM');
-  }
-
-  isThisDayInWeek(number) {
-    return getDay(this.nowDate()) === (number + 1) % 7;
-  }
-
-  dayColor(isDayInWeekColor) {
-    /* Saturday, Sunday */
-    if (this.props.idx > 4 && !isDayInWeekColor) {
-      return '#999999';
-    }
-    const day = typeof this.props.day === 'object' ? this.props.day.day : this.props.day;
-    const month = parseInt(day.split('-')[1]);
-    const monthColors = [
-      '#5061BF',
-      '#5CAAD8',
-      '#9DC65E',
-      '#693E95',
-      '#4A9656',
-      '#DA4B7E',
-      '#8F4C81',
-      '#F1B55F',
-      '#DF6B46',
-      '#DE594B',
-      '#644733',
-      '#B24143',
-    ];
-    return monthColors[month - 1];
-  }
-
-  createNewTodo(evt) {
-    const todoExists = this.state.todos.map(todo => todo.id).indexOf(-1) > 1;
-    if ((!evt || (evt.clientY > 50 && !this.preventClick)) && !todoExists) {
-      const todos = this.state.todos.concat({ id: -1 });
-      this.setState({ todos });
-    }
-    return true;
-  }
-
-  mouseEnterTodo(idx) {
-    this.preventClick = true;
-  }
-
-  mouseLeaveTodo(idx) {
-    this.preventClick = false;
-  }
-
-  cancelTodo() {
-    this.setState({
-      todos: this.state.todos.filter(todo => todo.id !== -1),
-    });
-  }
-
-  month() {
-    return parseInt(this.props.day.split('-')[1]);
-  }
-
-  renderMonthName() {
-    return <css.Month colorIdx={getMonth(this.props.day)}>{format(this.props.day, 'MMM YY', { locale })}</css.Month>;
-  }
-
-  renderMonth() {
-    if (
-      (this.props.idx === 0 && parseInt(this.props.day.substring(8), 10) < 8) ||
-      (parseInt(this.props.day.substring(8), 10) === 1 && this.props.idx < 1)
-    ) {
-      return this.renderMonthName();
-    }
-  }
-
-  renderTodos() {
-    let todos = this.state.todos;
-    let newTodos;
-    todos = newTodos || todos;
+  function renderTodos(todos) {
     return todos.map((todo, idx) => {
-      return (
-        <Todo
-          idx={idx}
-          todo={todo}
-          key={todo.id}
-          color={this.dayColor()}
-          saveTodo={this.saveTodo.bind(this)}
-          mouseEnterTodo={this.mouseEnterTodo.bind(this)}
-          mouseLeaveTodo={this.mouseLeaveTodo.bind(this)}
-          cancelTodo={this.cancelTodo.bind(this)}
-          createNewTodo={this.createNewTodo.bind(this)}
-        />
-      );
+      return <Todo day={day} idx={idx} todo={todo} key={todo.id} mouseEnterTodo={mouseEnterTodo} mouseLeaveTodo={mouseLeaveTodo} />;
     });
   }
 
-  render() {
-    if (typeof this.props.day === 'object') {
-      const color = this.isThisMonth(this.props.day.day) && this.isThisDayInWeek(this.props.day.number) ? this.dayColor(true) : '#444';
-      return (
-        <css.DayOfWeek idx={this.props.idx} color={color}>
-          {format(addDays('1975-09-22', this.props.idx), 'dddd', { locale })}
-        </css.DayOfWeek>
-      );
-    }
-    const monthColor = this.dayColor();
+  if (typeof day === 'number') {
+    return <css.emptyTd colSpan={day} />;
+  }
+  // if (typeof day === 'object') {
+  //   const isDayOfWeekInColor = isThisMonth(day.day) && isThisDayInWeek(day.number);
+  //   return (
+  //     <css.DayOfWeek idx={idx} isDayOfWeekInColor={isDayOfWeekInColor} colorIdx={getMonth(day.day)}>
+  //       {format(addDays('1975-09-22', idx), 'dddd', { locale })}
+  //     </css.DayOfWeek>
+  //   );
+  // }
+  const isTodayBool = isToday(day);
+  const isDayOfWeekInColor = isThisMonth(day) && isThisDayInWeek(idx);
+
+  function dayOfWeek() {
+    if (parseInt(day.substring(8), 10) > 7) return null;
     return (
-      <css.Td
-        isToday={this.isToday(this.props.day)}
-        colorIdx={getMonth(this.props.day)}
-        dayWeekIdx={this.props.idx}
-        ref={el => {
-          this.dom = el;
-        }}
-        onMouseEnter={() => this.props.dayAction({ action: 'enter', day: this.props.day })}
-        onMouseLeave={() => this.props.dayAction({ action: 'leave', day: this.props.day })}
-        onClick={this.createNewTodo.bind(this)}
-      >
-        <css.TodoList
-          ref={el => {
-            this.todoList = el;
-          }}
-        >
-          {this.renderTodos()}
-        </css.TodoList>
-        {this.renderMonth()}
-        <css.BottomRightDay isToday={this.isToday(this.props.day)} color={monthColor}>
-          {this.props.day.substring(8)}
-        </css.BottomRightDay>
-      </css.Td>
+      <css.DayOfWeek isDayOfWeekInColor={isDayOfWeekInColor} colorIdx={getMonth(day)}>
+        {format(addDays('1975-09-22', idx), 'dddd', { locale })}
+      </css.DayOfWeek>
     );
   }
+
+  return (
+    <css.Td
+      isToday={isTodayBool}
+      colorIdx={getMonth(day)}
+      dayWeekIdx={idx}
+      ref={domRef}
+      onMouseEnter={() => dayAction({ action: 'enter', day: day })}
+      onMouseLeave={() => dayAction({ action: 'leave', day: day })}
+      onClick={evt => !preventClick && actions.createNewTodo(evt, day)}
+    >
+      {dayOfWeek()}
+      <css.TodoList ref={todoListRef}>{renderTodos(todos)}</css.TodoList>
+      {renderMonth(day, idx)}
+      <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={idx} monthIdx={getMonth(day)}>
+        {day.substring(8).replace(/^0/, '')}
+      </css.BottomRightDay>
+    </css.Td>
+  );
 }
+
+CalendarDay.propTypes = {
+  day: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  setDayDOM: PropTypes.func.isRequired,
+  idx: PropTypes.number.isRequired,
+  registerDroppedList: PropTypes.func.isRequired,
+  moveTodoToDroppedList: PropTypes.func.isRequired,
+};
+
 export default CalendarDay;
