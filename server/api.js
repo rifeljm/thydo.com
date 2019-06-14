@@ -46,6 +46,7 @@ api.sso = async user => {
 };
 
 api.authenticateMiddleware = async (req, res, next) => {
+  let sql;
   if (!req.cookies.thydo_user) {
     /* in 90% of the cases, this will happen only when user manually deletes the cookie in the browser */
     return res.status(500).json({ error: 'Missing cookie.' });

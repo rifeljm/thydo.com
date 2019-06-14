@@ -4,12 +4,14 @@ const WebSocket = require('ws');
 const google = require('./googleSSO.js');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const favicon = require('serve-favicon');
 
 const { randomString, indexHTML } = require('./helpers.js');
 
 const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(favicon(__dirname + '/favicon.ico'));
 
 const api = require('./api.js');
 
@@ -28,13 +30,13 @@ wss.on('connection', ws => {
 app.get('/', async (req, res) => {
   if (req.query && req.query.code) {
     const userInfo = await google.getGoogleAccountFromCode(req.query.code);
-    const createUser = await api.sso(userInfo);
+    await api.sso(userInfo);
   }
   let todos = {};
   if (!req.cookies.thydo_user) {
     res.cookie('thydo_user', randomString(16), { maxAge: 365 * 24 * 60 * 60, httpOnly: true });
   } else {
-    schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
+    let schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
     if (schemaExistsForCookie) {
       todos = await api._getTodos(req, res);
     }
