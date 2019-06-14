@@ -1,7 +1,7 @@
 {
   "name": "Thydo.com",
   "scripts": {
-    "start": "webpack-dev-server --no-inline"
+    "start": "webpack-dev-server --hot"
   },
   "author": "Matej Rifelj",
   "dependencies": {

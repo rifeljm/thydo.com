@@ -2,8 +2,9 @@ module.exports = {
   env: {
     browser: true,
     es6: true,
+    node: true,
   },
-  extends: 'eslint:recommended',
+  extends: ['eslint:recommended', 'plugin:react/recommended'],
   parser: 'babel-eslint',
   parserOptions: {
     ecmaFeatures: {
@@ -13,13 +14,20 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['react'],
+  plugins: ['babel', 'react'],
   rules: {
     strict: [2, 'never'],
     'react/jsx-uses-react': 2,
     'react/jsx-uses-vars': 2,
     'react/react-in-jsx-scope': 2,
-    'react/prop-types': 1,
+    'react/prop-types': 2,
     'no-console': 1,
+    'react/no-unused-state': 2,
+  },
+  settings: {
+    react: {
+      pragma: 'React',
+      version: '16.8',
+    },
   },
 };
