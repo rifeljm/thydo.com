@@ -46,7 +46,7 @@ function CalendarDay({ day }) {
   let sortable;
 
   React.useEffect(() => {
-    if (day === format(new Date(), 'YYYY-MM-DD')) {
+    if (isToday(day)) {
       window.todayDOM = domRef.current;
       store.toToday = true;
     }
@@ -66,7 +66,7 @@ function CalendarDay({ day }) {
   function createSortable() {
     sortable = Sortable.create(todoListRef.current, {
       group: 'todos',
-      onSort: onSortListener,
+      onSort: evt => actions.handleOnSort(evt, day, todoListRef.current),
     });
   }
 
@@ -95,29 +95,6 @@ function CalendarDay({ day }) {
         });
       }
     }
-  }
-
-  function onSortListener(evt) {
-    const isSource = evt.from === todoListRef.current;
-    const list = {
-      count: evt.from.childElementCount,
-      isSource,
-      newIndex: evt.newIndex,
-      oldIndex: evt.oldIndex,
-      day,
-    };
-    /* put elements back in DOM first */
-    if (isSource) {
-      /* append child only if it was removed from list (sort on the same list doesn't remove it) */
-      if ([...evt.from.children].indexOf(evt.item) === -1) {
-        evt.item.style.display = 'none';
-        evt.from.appendChild(evt.item);
-      }
-    } else {
-      /* remove added child on target list */
-      evt.item.remove();
-    }
-    actions.handleOnSort(list);
   }
 
   function onMonthNameClick(evt) {
@@ -177,8 +154,6 @@ function CalendarDay({ day }) {
       </css.DayOfWeek>
     );
   }
-
-  // console.log('DAY->', day);
 
   return (
     <css.Td

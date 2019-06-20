@@ -34,10 +34,30 @@ exports.showNewTodoInput = store => (evt, day) => {
   }
 };
 
-exports.handleOnSort = store => sortable => {
+exports.handleOnSort = store => (evt, day, dom) => {
+  const isSource = evt.from === dom;
+  const sortable = {
+    count: evt.from.childElementCount,
+    isSource,
+    newIndex: evt.newIndex,
+    oldIndex: evt.oldIndex,
+    day,
+  };
+  /* put elements back in DOM first */
+  if (isSource) {
+    /* append child only if it was removed from list (sort on the same list doesn't remove it) */
+    if ([...evt.from.children].indexOf(evt.item) === -1) {
+      evt.item.style.display = 'none';
+      evt.from.appendChild(evt.item);
+    }
+  } else {
+    /* remove added child on target list */
+    evt.item.remove();
+  }
+
   let todos, item, source, target;
   let request = {};
-  todos = toJS(store.todos[sortable.day]);
+  todos = toJS(store.todos[day]);
   if (window.tempSortable) {
     [source, target] = [window.tempSortable, sortable].sort(a => (a.isSource ? -1 : 1));
 
@@ -60,8 +80,8 @@ exports.handleOnSort = store => sortable => {
     item = todos[sortable.oldIndex];
     todos.splice(sortable.oldIndex, 1);
     todos.splice(sortable.newIndex, 0, item);
-    store.todos[sortable.day] = todos;
-    request.days = { day: sortable.day, todoIds: todos.map(todo => todo.id) };
+    store.todos[day] = todos;
+    request.days = { day, todoIds: todos.map(todo => todo.id) };
   } else if (!request.days) {
     window.tempSortable = sortable;
   }
