@@ -156,7 +156,6 @@ api._getTodos = async (req, res) => {
   }
   let todosResponse = {};
   if (todosResult.rows && todosResult.rows.length) {
-    console.log(todosResult.rows);
     todosResult.rows.forEach(row => {
       const day = row.day;
       if (!todosResponse[day]) todosResponse[day] = [];
@@ -176,26 +175,26 @@ api.getTodos = async (req, res) => {
 
 api.putSortDay = async (req, res) => {
   const cookie = req.cookies.thydo_user;
-  const todoIds = req.body.todoIds;
-  const day = req.body.day;
-  let sql, result;
-  sql = 'BEGIN;';
+  const actions = Array.isArray(req.body.days) ? req.body.days : [req.body.days];
+  let sql = 'BEGIN;';
   await pool.query(sql);
   /* first put existing sorts in trash */
-  sql = `UPDATE "${cookie}".todo_ids
-            SET trash = true
-          WHERE day = $1`;
-  await pool.query(sql, [day]);
-  sql = `INSERT INTO "${cookie}".todo_ids (day, todos)
-              VALUES ($1, $2)`;
-  result = await pool.query(sql, [day, todoIds]);
+  for (let i = 0; i < actions.length; i++) {
+    sql = `UPDATE "${cookie}".todo_ids
+              SET trash = true
+            WHERE day = $1`;
+    await pool.query(sql, [actions[i].day]);
+    sql = `INSERT INTO "${cookie}".todo_ids (day, todos)
+                VALUES ($1, $2)`;
+    await pool.query(sql, [actions[i].day, actions[i].todoIds]);
+  }
   sql = 'COMMIT;';
   await pool.query(sql);
-  res.send([day, todoIds]);
+  res.send(req.body.days);
 };
 
 api.schemaExists = async cookie => {
-  sql = `
+  let sql = `
     SELECT schema_name
       FROM information_schema.schemata
      WHERE schema_name = $1`;

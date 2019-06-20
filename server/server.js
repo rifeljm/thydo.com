@@ -34,7 +34,8 @@ app.get('/', async (req, res) => {
   }
   let todos = {};
   if (!req.cookies.thydo_user) {
-    res.cookie('thydo_user', randomString(16), { maxAge: 365 * 24 * 60 * 60, httpOnly: true });
+    /* cookie expires after 10 years */
+    res.cookie('thydo_user', randomString(16), { maxAge: 10 * 365 * 24 * 60 * 60 * 1000, httpOnly: true });
   } else {
     let schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
     if (schemaExistsForCookie) {
