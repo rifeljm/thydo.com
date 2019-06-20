@@ -1,23 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import autosize from 'autosize';
-
-import { Store } from './Store.js';
+import { useStore } from './Store.js';
 
 import css from '../css/Todo.js';
 
 Todo.propTypes = {
-  day: PropTypes.string.isRequired,
   idx: PropTypes.number.isRequired,
   todo: PropTypes.object.isRequired,
   mouseEnterTodo: PropTypes.func.isRequired,
   mouseLeaveTodo: PropTypes.func.isRequired,
+  day: PropTypes.string.isRequired,
 };
 
-function Todo({ day, idx, todo, mouseEnterTodo, mouseLeaveTodo }) {
+function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
+  const { actions } = useStore();
   const todoRef = React.useRef();
   const todoInputRef = React.useRef();
-  const { dispatch, actions } = React.useContext(Store);
 
   React.useEffect(() => {
     if (todo.id === -1) {
@@ -35,18 +34,14 @@ function Todo({ day, idx, todo, mouseEnterTodo, mouseLeaveTodo }) {
   function todoInputKeyDown(evt) {
     let value = todoInputRef.current.value;
     if (evt.keyCode === 27) {
-      dispatch({ type: 'REMOVE_NEW_TODO_INPUT', day });
       evt.preventDefault();
+      actions.cancelTodo(day);
     }
     if (evt.keyCode === 13 && !evt.shiftKey) {
       evt.preventDefault();
-      if (value) {
-        todoInputRef.current.value = '';
-        actions.saveTodo(day, value);
-      } else {
-        /* empty input means cancel todo input */
-        dispatch({ type: 'REMOVE_NEW_TODO_INPUT', day });
-      }
+      evt.stopPropagation();
+      todoInputRef.current.value = '';
+      actions.saveTodo(day, value);
     }
     if (evt.keyCode === 9) {
       evt.preventDefault();

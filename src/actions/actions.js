@@ -9,12 +9,8 @@ const actions = allActions.reduce((prev, curr) => {
   return Object.assign(prev, curr);
 }, {});
 
-exports.useActions = (dispatch, state) => {
+exports.useActions = store => {
   return Object.keys(actions).reduce((prev, key) => {
-    const fnString = actions[key](dispatch).toString();
-    if (fnString.substring(0, 16) === 'function (state)') {
-      return Object.assign(prev, { [key]: actions[key](dispatch)(state) });
-    }
-    return Object.assign(prev, { [key]: actions[key](dispatch) });
+    return Object.assign(prev, { [key]: actions[key](store) });
   }, {});
 };

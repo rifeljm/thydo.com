@@ -3,7 +3,7 @@ import { rgba, lighten } from 'polished';
 
 const css = {};
 
-const penColor = '#114466';
+const penColor = '#333';
 const normalRadius = '3px';
 
 css.Todo = styled.div`

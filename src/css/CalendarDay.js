@@ -18,12 +18,21 @@ const monthColors = [
   '#B24143',
 ];
 
+function borderColor(props) {
+  let color = [0, 6].indexOf(props.dayWeekIdx) > -1 ? '#ccc' : rgba(monthColors[props.colorIdx], props.isToday ? 0.6 : 0.25);
+  if (props.highlight) {
+    color = '#888';
+  }
+  return color;
+}
+
 css.Td = styled.div`
   display: table-cell;
   height: 150px;
   vertical-align: top;
   border-radius: 5px;
-  border: 1px solid ${props => (props.dayWeekIdx > 4 ? '#ccc' : rgba(monthColors[props.colorIdx], props.isToday ? 0.6 : 0.25))};
+  border: 1px solid ${props => borderColor(props)};
+  box-shadow: ${props => (props.highlight ? 'inset 0 0 0 5px #eee' : 'default')};
   position: relative;
   width: calc(100% / 7);
   cursor: pointer;
@@ -41,7 +50,7 @@ css.BottomRightDay = styled.div`
   bottom: -3px;
   right: 5px;
   font-size: 80px;
-  color: ${props => (props.isToday ? '#fff' : rgba(props.dayInWeekIdx > 4 ? '#bbb' : monthColors[props.monthIdx], 0.25))};
+  color: ${props => (props.isToday ? '#fff' : rgba([0, 6].indexOf(props.dayInWeekIdx) > -1 ? '#bbb' : monthColors[props.monthIdx], 0.25))};
 `;
 
 css.DayOfWeek = styled.div`
@@ -49,7 +58,7 @@ css.DayOfWeek = styled.div`
   top: -30px;
   border: 0;
   text-align: right;
-  font-size: 18px;
+  font-size: 20px;
   right: 5px;
   color: ${props => (props.isDayOfWeekInColor ? monthColors[props.colorIdx] : '#666')};
 `;
@@ -57,7 +66,7 @@ css.DayOfWeek = styled.div`
 css.Month = styled.div`
   position: absolute;
   top: -123px;
-  font-size: 55px;
+  font-size: 50px;
   white-space: nowrap;
   color: #fff;
   left: -2px;
