@@ -20,7 +20,7 @@ exports.indexHTML = json => {
     <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?id=5"/>
     <script type="application/json" id="todos_data">${json}</script>
-  </head>eb
+  </head>
   <body>
     <div id="main" />
     <script type="text/javascript" src="/js/vendor.js"></script>

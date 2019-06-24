@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 
 import { useStore } from './Store.js';
 import Header from './Header.js';
-import RenderWeeks from './RenderWeeks.js';
+import Weeks from './Weeks.js';
 
 import css from '../css/App.js';
 
@@ -45,7 +45,7 @@ function App() {
         window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
       }
       actions.removeWeeks('bottom');
-    } else if (window.pageYOffset > document.body.scrollHeight - window.innerHeight && scrolledDown) {
+    } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight && scrolledDown) {
       actions.addWeeks(4);
       actions.removeWeeks('top');
     }
@@ -70,9 +70,9 @@ function App() {
       <css.GlobalStyle />
       <Header scrollToToday={scrollToToday} />
       <css.MainTableWrapper>
-        <css.Table>
-          <RenderWeeks dates={store.dates} />
-        </css.Table>
+        <css.Weeks>
+          <Weeks dates={store.dates} />
+        </css.Weeks>
       </css.MainTableWrapper>
     </React.Fragment>
   );

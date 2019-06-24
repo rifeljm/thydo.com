@@ -31,7 +31,7 @@ css.MainTableWrapper = styled.div`
   padding: 0 10px;
 `;
 
-css.Table = styled.div`
+css.Weeks = styled.div`
   margin-top: 200px;
   display: table;
   position: relative;

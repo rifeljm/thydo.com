@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import CalendarDay from './CalendarDay.js';
 import { toJS } from 'mobx';
 
-import css from '../css/App.js';
+import css from '../css/Weeks.js';
 
 function renderDays(week) {
   return week.map(day => {
@@ -11,7 +11,7 @@ function renderDays(week) {
   });
 }
 
-const RenderWeeks = ({ dates }) => {
+const Weeks = ({ dates }) => {
   const arrayedDates = dates.reduce((prev, day, idx) => {
     if (idx % 7 === 0) {
       prev.push([day]);
@@ -48,4 +48,4 @@ const RenderWeeks = ({ dates }) => {
   });
 };
 
-export default observer(RenderWeeks);
+export default observer(Weeks);
