@@ -5,18 +5,30 @@ const google = require('./googleSSO.js');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const favicon = require('serve-favicon');
+const fs = require('fs');
+const path = require('path');
 
 const { randomString, indexHTML } = require('./helpers.js');
+
+const distIndexHtml = './dist/index.html';
+let productionIndexHtml = '';
+if (fs.existsSync(distIndexHtml)) {
+  productionIndexHtml = fs.readFileSync(distIndexHtml, 'UTF8');
+}
 
 const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(favicon(__dirname + '/favicon.ico'));
+app.use('/js', express.static(path.join(__dirname, 'dist/js')));
 
 const api = require('./api.js');
 
 const server = http.createServer(app);
-server.listen(80);
+const productionPort = 8081;
+const serverPort = process.env.NODE_ENV === 'production' ? productionPort : 80;
+server.listen(serverPort);
+console.log(`Server listening on port ${serverPort}.`);
 
 const wss = new WebSocket.Server({ server });
 
@@ -42,7 +54,9 @@ app.get('/', async (req, res) => {
       todos = await api._getTodos(req, res);
     }
   }
-  res.send(indexHTML(JSON.stringify(todos)));
+  let indexHtml = req.headers.host.indexOf(`thydo.com:${serverPort}`) > -1 ? productionIndexHtml : indexHTML(JSON.stringify(todos));
+  indexHtml = indexHtml.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(todos)}</script>`);
+  res.send(indexHtml);
 });
 
 app.post('/api/todo', api.authenticateMiddleware, api.postTodo);
@@ -53,4 +67,7 @@ const auth = google.createConnection();
 const url = google.getConnectionUrl(auth);
 const googleSsoUrl = url;
 
-// console.log('------------------------->', url);
+(async () => {
+  await api.createTables();
+  console.log('Tables created...');
+})();

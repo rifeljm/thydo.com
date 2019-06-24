@@ -1,10 +1,35 @@
-const { Pool, Client } = require('pg');
+const { Pool } = require('pg');
 
 const pool = new Pool();
 
 const { randomString } = require('./helpers.js');
 
 const api = {};
+
+api.createTables = async () => {
+  let sql = `
+    CREATE TABLE IF NOT EXISTS public.users (
+    id serial NOT NULL,
+    email text,
+    display_name text,
+    avatar text,
+    lang text,
+    cookie text,
+    tokens jsonb,
+    google_id text,
+    creation_time timestamp without time zone,
+    "time" timestamp without time zone,
+    primary key(id))`;
+  await pool.query(sql);
+  sql = `
+    CREATE TABLE IF NOT EXISTS public.sessions (
+    id serial NOT NULL,
+    cookie text,
+    user_id integer,
+    "time" timestamp without time zone,
+    primary key(id))`;
+  await pool.query(sql);
+};
 
 api.createUserTable = async id => {
   let sql;

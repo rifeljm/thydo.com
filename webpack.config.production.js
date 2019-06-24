@@ -1,25 +1,19 @@
-// var HtmlWebpackPlugin = require('html-webpack-plugin');
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
     index: ['./src/index.js'],
   },
   output: {
-    filename: '[name].js',
-    chunkFilename: '[name].js',
-    publicPath: '/js',
+    filename: 'js/[name].[contenthash].bundle.js',
+    publicPath: '/',
   },
-  // plugins: [
-  //   new HtmlWebpackPlugin({
-  //     title: 'Thydo calendar',
-  //     template: './src/index.html',
-  //   }),
-  // ],
-  devServer: {
-    host: '0.0.0.0',
-    port: 80,
-    allowedHosts: ['debian', 'thydo'],
-  },
+  plugins: [
+    new HtmlWebpackPlugin({
+      title: 'Thydo calendar',
+      template: './src/index.html',
+    }),
+  ],
   optimization: {
     splitChunks: {
       cacheGroups: {

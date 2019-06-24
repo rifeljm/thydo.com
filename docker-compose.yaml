@@ -38,7 +38,7 @@ services:
       - './server:/server'
       - '/server/node_modules'
     environment:
-      - NODE_ENV=dev
+      - NODE_ENV=development
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - PGUSER=thydo
@@ -52,10 +52,8 @@ services:
     container_name: thydo_postgres
     image: postgres:11.3-alpine
     volumes:
-      - /pgdata:/var/lib/postgresql/data
+      - /home/thydo/thydo_pgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - default
-    environment:
-      - POSTGRES_PASSWORD=thydo
