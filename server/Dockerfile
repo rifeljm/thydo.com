@@ -1,6 +1,5 @@
 FROM node:12
 RUN mkdir /server
-RUN mkdir -p /pgdata
 WORKDIR /server
 ENV PATH /server/node_modules/.bin:$PATH
 COPY package.json /server/package.json
