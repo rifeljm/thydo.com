@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import autosize from 'autosize';
+import { toJS } from 'mobx';
+
 import { useStore } from './Store.js';
 
-import css from '../css/Todo.js';
+import css from '../css/Todo.css';
 
 Todo.propTypes = {
   idx: PropTypes.number.isRequired,
@@ -52,32 +54,41 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     }
   }
 
-  let textOrInput = todo.title;
-  if (todo.id === -1) {
-    textOrInput = (
-      <css.TodoInput
-        className="todo-input"
-        autoComplete="off"
-        autoCorrect="off"
-        autoCapitalize="off"
-        spellCheck="false"
-        rows={1}
-        ref={todoInputRef}
-        type="text"
-      />
-    );
-  }
-  return (
-    <css.Todo ref={todoRef} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
-      <css.TodoDash grey={todo.id < -1}>{idx + 1}.</css.TodoDash>
-      {todo.id === -1 ? (
+  function renderTextOrInput() {
+    let textOrInput = todo.title;
+    if (todo.id === -1) {
+      textOrInput = (
+        <css.TodoTextarea
+          className="todo-input"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          spellCheck="false"
+          rows={1}
+          ref={todoInputRef}
+          type="text"
+        />
+      );
+    }
+    if (todo.id === -1) {
+      return (
         <css.TodoInputCell onKeyDown={todoInputKeyDown} onKeyUp={todoInputKeyUp}>
           {textOrInput}
         </css.TodoInputCell>
-      ) : (
-        <css.TodoText grey={todo.id < -1}>{textOrInput}</css.TodoText>
-      )}
-    </css.Todo>
+      );
+    }
+    return <css.TodoText grey={toJS(todo).id < -1}>{textOrInput}</css.TodoText>;
+  }
+
+  return (
+    <css.TodoTable ref={todoRef} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
+      <tbody>
+        <css.TodoTr>
+          <css.TodoDashTd grey={toJS(todo).id < -1}>{idx + 1}.</css.TodoDashTd>
+          {renderTextOrInput()}
+        </css.TodoTr>
+      </tbody>
+    </css.TodoTable>
   );
 }
 

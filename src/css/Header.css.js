@@ -14,7 +14,7 @@ const slide = keyframes`
 css.HeaderWrapper = styled.div`
   position: fixed;
   padding: 10px 0;
-  height: 30px;
+  height: 50px;
   width: 100%;
   background: #fff;
   box-shadow: 0 0 3px 0 #000;

@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import CalendarDay from './CalendarDay.js';
 import { toJS } from 'mobx';
 
-import css from '../css/Weeks.js';
+import css from '../css/Weeks.css';
 
 function renderDays(week) {
   return week.map(day => {

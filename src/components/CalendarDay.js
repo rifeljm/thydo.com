@@ -10,7 +10,8 @@ import { useStore } from './Store.js';
 import Todo from './Todo.js';
 import { _tr, upFirst } from '../common/utils.js';
 
-import css from '../css/CalendarDay';
+import css from '../css/CalendarDay.css';
+import cssTodo from '../css/Todo';
 
 let preventClick = false;
 
@@ -71,6 +72,12 @@ function CalendarDay({ day }) {
   }
 
   function onClickEvent(evt) {
+    if (window.highlightStartDay) {
+      // deselectAllHighlighted();
+      actions.showMultiDayInput(day);
+      delete window.highlightStartDay;
+      return;
+    }
     if (preventClick) return;
     if (evt.shiftKey) {
       window.highlightStartDay = day;
@@ -78,6 +85,12 @@ function CalendarDay({ day }) {
       return;
     }
     actions.showNewTodoInput(evt, day, preventClick);
+  }
+
+  function deselectAllHighlighted() {
+    Object.keys(toJS(store.highlightObjects)).forEach(day => {
+      store.highlightObjects[day] = false;
+    });
   }
 
   function mouseAction({ action, day }) {
@@ -90,9 +103,7 @@ function CalendarDay({ day }) {
         }, {});
       }
       if (action === 'mouseLeave') {
-        Object.keys(toJS(store.highlightObjects)).forEach(day => {
-          store.highlightObjects[day] = false;
-        });
+        deselectAllHighlighted();
       }
     }
   }
@@ -134,6 +145,11 @@ function CalendarDay({ day }) {
     return text;
   }
 
+  function renderTodoList() {
+    /* We need this element rendered (css.TodoList) even if there are no todos, sortablejs will use it as an empty placeholder! */
+    return <css.TodoList ref={todoListRef}>{renderTodos(todos)}</css.TodoList>;
+  }
+
   function renderTodos(todos) {
     return todos.map((todo, idx) => {
       return <Todo idx={idx} todo={todo} key={todo.id} mouseEnterTodo={mouseEnterTodo} mouseLeaveTodo={mouseLeaveTodo} day={day} />;
@@ -155,6 +171,38 @@ function CalendarDay({ day }) {
     );
   }
 
+  function renderMultiDayEvents() {
+    let multiDayEvents = toJS(store.multiDay[day]);
+    if (Array.isArray(multiDayEvents) && multiDayEvents.length) {
+      return multiDayEvents.map((event, idx) => {
+        return (
+          <css.multiDay key={idx} colorIdx={getMonth(day)}>
+            {event.title}
+          </css.multiDay>
+        );
+      });
+    }
+    // let inputOrText = store.multiDay[day];
+    // console.log('InputOrText =>', day, toJS(inputOrText));
+    // if (day === window.multiDayStart) {
+    //   inputOrText = (
+    //     <cssTodo.TodoInput
+    //       className="multi-day-input"
+    //       autoComplete="off"
+    //       autoCorrect="off"
+    //       autoCapitalize="off"
+    //       spellCheck="false"
+    //       rows={1}
+    //       type="text"
+    //     />
+    //   );
+    // }
+    // if (inputOrText) {
+    //   return <css.multiDay colorIdx={getMonth(day)}>{inputOrText}</css.multiDay>;
+    // }
+    return null;
+  }
+
   return (
     <css.Td
       isToday={isTodayBool}
@@ -167,8 +215,10 @@ function CalendarDay({ day }) {
       highlight={day === window.highlightStartDay || store.highlightObjects[day]}
     >
       {renderDayOfWeek()}
-      <css.TodoList ref={todoListRef}>{renderTodos(todos)}</css.TodoList>
+      {renderMultiDayEvents()}
+      {renderTodoList()}
       {renderMonth(day)}
+
       <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={getDay(day)} monthIdx={getMonth(day)}>
         {day.substring(8).replace(/^0/, '')}
       </css.BottomRightDay>

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { format, differenceInCalendarDays, addDays } from 'date-fns';
 
 export const _tr = key => {
   return key;
@@ -49,4 +50,9 @@ export const useEventListener = (eventName, handler, element = global) => {
     },
     [eventName, element] // Re-run if eventName or element changes
   );
+};
+
+export const fromToDays = (from, to) => {
+  const diff = Math.abs(differenceInCalendarDays(from, to));
+  return [...Array(diff + 1).keys()].map(idx => format(addDays(from, idx), 'YYYY-MM-DD'));
 };

@@ -1,5 +1,6 @@
 import { addDays, format } from 'date-fns';
 import { toJS } from 'mobx';
+import { fromToDays } from '../common/utils.js';
 
 const addElements = (weekCount, day) => {
   if (weekCount < 0) {
@@ -48,4 +49,19 @@ export const initCalendar = store => () => {
 export const toToday = store => () => {
   store.toToday = false;
   initCalendar(store)();
+};
+
+export const processInitData = store => allEntries => {
+  const initMultiDay = {};
+  allEntries.multiDay.forEach(todo => {
+    fromToDays(todo.from, todo.to).forEach(day => {
+      if (!initMultiDay[day]) {
+        initMultiDay[day] = [];
+      }
+      initMultiDay[day].push(todo);
+    });
+  });
+  store.multiDay = initMultiDay;
+  delete allEntries.multiDay;
+  store.todos = allEntries;
 };

@@ -6,6 +6,11 @@ const css = {};
 const fontFamily = `'Lato', sans-serif`;
 
 css.GlobalStyle = createGlobalStyle`
+  * {
+      -moz-box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+       box-sizing: border-box;
+  }
   body {
     padding: 0;
     margin: 0;

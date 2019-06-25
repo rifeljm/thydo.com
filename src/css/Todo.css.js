@@ -1,38 +1,39 @@
 import styled from 'styled-components';
-import { rgba, lighten } from 'polished';
 
 const css = {};
 
-const penColor = '#333';
+const penColor = '#334955';
 const normalRadius = '3px';
 
-css.Todo = styled.div`
-  display: table;
-  border-collapse: collapse;
-  border-spacing: 0;
+css.TodoTable = styled.table`
+  border-collapse: separate;
+  border-spacing: 0 1px;
   width: 100%;
-  background: rgba(0, 0, 0, 0.05);
   color: ${penColor};
   border-radius: ${normalRadius};
+  // background: rgba(0, 0, 0, 0.05);
 `;
 
-css.TodoDash = styled.div`
+css.TodoTr = styled.tr`
+  background: rgba(0, 0, 0, 0.05);
+`;
+
+css.TodoDashTd = styled.td`
   padding: 2px 0 3px 3px;
-  display: table-cell;
   vertical-align: top;
   border-radius: ${normalRadius} 0 0 ${normalRadius};
   width: 10px;
-  // color: ${props => (props.grey ? '#aaa' : penColor)};
+  color: ${props => (props.grey ? '#aaa' : 'inherit')};
 `;
 
-css.TodoText = styled.div`
+css.TodoText = styled.td`
+  // background: rgba(0, 0, 0, 0.05);
   padding: 3px;
-  display: table-cell;
   vertical-align: top;
   border-radius: 0 ${normalRadius} ${normalRadius} 0;
   z-index: 5;
   white-space: pre-wrap;
-  // color: ${props => (props.grey ? '#aaa' : penColor)};
+  color: ${props => (props.grey ? '#aaa' : 'inherit')};
   line-height: 15px;
 `;
 
@@ -41,7 +42,7 @@ css.TodoInputCell = styled(css.TodoText)`
   padding-bottom: 1px;
 `;
 
-css.TodoInput = styled.textarea`
+css.TodoTextarea = styled.textarea`
   border: 0;
   outline: none;
   background: rgba(0, 0, 0, 0.005);

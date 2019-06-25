@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { toJS } from 'mobx';
+import { getDay, format, differenceInCalendarDays, addDays } from 'date-fns';
 
 exports.showNewTodoInput = store => (evt, day) => {
   const todoInput = document.querySelector('.todo-input');
@@ -35,7 +36,7 @@ exports.showNewTodoInput = store => (evt, day) => {
 };
 
 exports.handleOnSort = store => (evt, day, dom) => {
-  const isSource = evt.from === dom;
+  const isSource = evt.from === dom; /* is this the list we took the element from? */
   const sortable = {
     count: evt.from.childElementCount,
     isSource,
@@ -90,4 +91,20 @@ exports.handleOnSort = store => (evt, day, dom) => {
       /* TODO: implement server error and cancel sort */
     });
   }
+};
+
+exports.showMultiDayInput = store => day => {
+  const [startDay, endDay] = [day, window.highlightStartDay].sort();
+  const diff = differenceInCalendarDays(endDay, startDay);
+  [...Array(diff + 1).keys()]
+    .map(idx => format(addDays(startDay, idx), 'YYYY-MM-DD'))
+    .forEach(day => {
+      let multiDayArray = store.multiDay[day] || [];
+      multiDayArray.splice(0, 0, { id: -1 });
+      store.multiDay[day] = multiDayArray;
+    });
+  window.multiDayStart = startDay;
+  setTimeout(() => {
+    document.querySelector('.multi-day-input').focus();
+  }, 0);
 };

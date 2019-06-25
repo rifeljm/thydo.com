@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import { useStore } from './Store.js';
 import { _tr } from '../common/utils.js';
 
-import css from '../css/Header.js';
+import css from '../css/Header.css';
 
 function Header({ scrollToToday }) {
   const { store, actions } = useStore();

@@ -11,6 +11,7 @@ const createStore = () => {
     todos: {},
     highlightObjects: {},
     visibleWeeks: null,
+    multiDay: {},
   };
   return store;
 };

@@ -9,13 +9,14 @@ exports.saveTodo = store => (day, title, options = {}) => {
   }
   const nextMinId = Math.min.apply(Math, todos.map(todo => todo.id)) - 1;
 
-  let newTodos = todos.concat({ id: nextMinId, title }).filter(todo => todo.id !== -1);
+  store.todos[day] = todos.filter(todo => todo.id !== -1);
+  store.todos[day].push({ id: nextMinId, title });
   if (options.createNew) {
-    newTodos.push({ id: -1 });
+    store.todos[day].push({ id: -1 });
   }
   axios.post('/api/todo', { day, title }).then(response => {
     if (response.status === 200) {
-      store.todos[day] = newTodos.map(todo => {
+      store.todos[day] = store.todos[day].map(todo => {
         const id = todo.id === nextMinId ? response.data.id : todo.id;
         return { ...todo, id };
       });

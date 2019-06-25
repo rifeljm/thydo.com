@@ -8,9 +8,7 @@ import { useStore } from './Store.js';
 import Header from './Header.js';
 import Weeks from './Weeks.js';
 
-import css from '../css/App.js';
-
-let lastScrollTop;
+import css from '../css/App.css';
 
 const dayHeight = 156;
 
@@ -18,14 +16,10 @@ function App() {
   const { store, actions } = useStore();
 
   React.useEffect(() => {
-    window.addEventListener('keydown', keyDownEvent);
     actions.initCalendar();
-    const todos = JSON.parse(document.getElementById('todos_data').innerHTML);
-    store.todos = todos;
+    actions.processInitData(JSON.parse(document.getElementById('todos_data').innerHTML));
+    window.addEventListener('keydown', keyDownEvent);
     window.addEventListener('scroll', onScrollEvent);
-    return () => {
-      window.removeEventListener('keydown', keyDownEvent);
-    };
   }, []);
 
   React.useEffect(() => {
@@ -34,22 +28,18 @@ function App() {
     }
   }, [toJS(store.toToday)]);
 
-  function onScrollEvent(evt) {
-    let scrolledDown = window.pageYOffset - lastScrollTop > 0;
-    if (window.pageYOffset < 50 && !scrolledDown) {
-      evt.preventDefault();
+  function onScrollEvent() {
+    if (window.pageYOffset < 50) {
       const heightBefore = document.body.scrollHeight;
-      const pageYOffset = window.pageYOffset;
       actions.addWeeks(-4);
-      if (window.pageYOffset - pageYOffset !== document.body.scrollHeight - heightBefore) {
+      if (window.pageYOffset === 0) {
         window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
       }
       actions.removeWeeks('bottom');
-    } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight && scrolledDown) {
+    } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight) {
       actions.addWeeks(4);
       actions.removeWeeks('top');
     }
-    lastScrollTop = window.pageYOffset <= 0 ? 0 : window.pageYOffset;
   }
 
   function keyDownEvent(evt) {
