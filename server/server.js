@@ -56,7 +56,7 @@ app.get('/', async (req, res) => {
   } else {
     let schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
     if (schemaExistsForCookie) {
-      todos = await api._getTodos(req, res);
+      todos = await api._getAllEvents(req, res);
     }
   }
   let indexHtml = req.headers.host.indexOf(`thydo.com:${serverPort}`) > -1 ? productionIndexHtml : indexHTML(JSON.stringify(todos));
@@ -66,7 +66,6 @@ app.get('/', async (req, res) => {
 
 app.post('/api/todo', api.authenticateMiddleware, api.postTodo);
 app.put('/api/sort-day', api.authenticateMiddleware, api.putSortDay);
-app.get('/api/todos', api.authenticateMiddleware, api.getTodos);
 
 const auth = google.createConnection();
 const url = google.getConnectionUrl(auth);

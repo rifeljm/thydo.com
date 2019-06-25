@@ -153,11 +153,15 @@ api.postTodo = async (req, res) => {
   }
 };
 
-api._getTodos = async (req, res) => {
+api._getAllEvents = async req => {
   const cookie = req.cookies.thydo_user;
-  if (!cookie) {
-    return {};
-  }
+  const responseObject = await api._getTodos(cookie);
+  const multiDayArray = await api._getMultipleDayEvents(cookie);
+  responseObject.multiDay = multiDayArray;
+  return responseObject;
+};
+
+api._getTodos = async cookie => {
   let sql;
   let todosResult = {};
   sql = `
@@ -176,8 +180,7 @@ api._getTodos = async (req, res) => {
     todosResult = await pool.query(sql);
   } catch (e) {
     console.log(`Probably session tables don't exist yet:`, e.message);
-    res.send({});
-    return;
+    return {};
   }
   let todosResponse = {};
   if (todosResult.rows && todosResult.rows.length) {
@@ -193,9 +196,17 @@ api._getTodos = async (req, res) => {
   return todosResponse;
 };
 
-api.getTodos = async (req, res) => {
-  const todosResponse = await api._getTodos(req, res);
-  res.send(todosResponse);
+api._getMultipleDayEvents = async cookie => {
+  let sql = `
+    SELECT todo
+      FROM "${cookie}".todos
+     WHERE todo->>'to' IS NOT NULL
+  `;
+  const result = await pool.query(sql);
+  if (result && result.rows && result.rows.length) {
+    return result.rows.map(row => row.todo);
+  }
+  return [];
 };
 
 api.putSortDay = async (req, res) => {
