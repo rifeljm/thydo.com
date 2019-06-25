@@ -1,3 +1,9 @@
+/* React SSR (after we merge docker containers - webpack and server) */
+// require('@babel/register')({
+//   presets: ['@babel/preset-env', '@babel/preset-react'],
+//   ignore: [/node_modules/],
+// });
+// require('babel-polyfill');
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
@@ -7,7 +13,6 @@ const bodyParser = require('body-parser');
 const favicon = require('serve-favicon');
 const fs = require('fs');
 const path = require('path');
-
 const { randomString, indexHTML } = require('./helpers.js');
 
 const distIndexHtml = './dist/index.html';

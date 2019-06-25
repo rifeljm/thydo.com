@@ -8,6 +8,11 @@
   "author": "Matej Rifelj",
   "license": "ISC",
   "dependencies": {
+    "@babel/core": "7.4.5",
+    "@babel/preset-env": "7.4.5",
+    "@babel/preset-react": "7.0.0",
+    "@babel/register": "7.4.4",
+    "babel-polyfill": "6.26.0",
     "cookie-parser": "1.4.4",
     "express": "^4.17.1",
     "googleapis": "40.0.0",
