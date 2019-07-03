@@ -59,7 +59,7 @@ app.get('/:id?', async (req, res) => {
       todos = await api._getAllEvents(req, res);
     }
   }
-  let indexHtml = req.headers.host.indexOf(`thydo.com:${serverPort}`) > -1 ? productionIndexHtml : indexHTML(JSON.stringify(todos));
+  let indexHtml = req.headers.host.indexOf('thydo.com') > -1 ? productionIndexHtml : indexHTML(JSON.stringify(todos));
   indexHtml = indexHtml.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(todos)}</script>`);
   res.send(indexHtml);
 });
