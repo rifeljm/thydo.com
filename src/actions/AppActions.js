@@ -2,6 +2,8 @@ import { addDays, format } from 'date-fns';
 import { toJS } from 'mobx';
 import { fromToDays } from '../common/utils.js';
 
+const dayHeight = 156;
+
 const addElements = (weekCount, day) => {
   if (weekCount < 0) {
     day = addDays(day, weekCount * 7);
@@ -15,7 +17,7 @@ const getMondayFromDates = (weekCount, dates) => {
   return weekCount > 0 ? addDays(lastDay, 1) : firstDay;
 };
 
-exports.removeWeeks = store => where => {
+export const removeWeeks = store => where => {
   if (where === 'bottom') {
     store.dates.splice(store.visibleWeeks * 7);
   }
@@ -24,7 +26,7 @@ exports.removeWeeks = store => where => {
   }
 };
 
-exports.addWeeks = store => weekCount => {
+export const addWeeks = store => weekCount => {
   let day = getMondayFromDates(weekCount, toJS(store.dates));
   let newElements = addElements(weekCount, day);
   if (weekCount > 0) {
@@ -34,7 +36,7 @@ exports.addWeeks = store => weekCount => {
   }
 };
 
-export const initCalendar = store => () => {
+export const paintCalendar = store => () => {
   const today = new Date();
   const dayInWeek = today.getDay();
   const daysSinceMonday = (dayInWeek + 6) % 7;
@@ -48,20 +50,47 @@ export const initCalendar = store => () => {
 
 export const toToday = store => () => {
   store.toToday = false;
-  initCalendar(store)();
+  paintCalendar(store)();
 };
 
 export const processInitData = store => allEntries => {
   const initMultiDay = {};
-  allEntries.multiDay.forEach(todo => {
-    fromToDays(todo.from, todo.to).forEach(day => {
-      if (!initMultiDay[day]) {
-        initMultiDay[day] = [];
-      }
-      initMultiDay[day].push(todo);
+  if (allEntries.multiDay) {
+    allEntries.multiDay.forEach(todo => {
+      fromToDays(todo.from, todo.to).forEach(day => {
+        if (!initMultiDay[day]) {
+          initMultiDay[day] = [];
+        }
+        initMultiDay[day].push(todo);
+      });
     });
-  });
-  store.multiDay = initMultiDay;
-  delete allEntries.multiDay;
+    store.multiDay = initMultiDay;
+    delete allEntries.multiDay;
+  }
   store.todos = allEntries;
+};
+
+export const onScrollEvent = store => () => {
+  if (window.pageYOffset < 50) {
+    const offsetBefore = window.pageYOffset;
+    let heightBefore = document.body.scrollHeight;
+    addWeeks(store)(-4);
+    if (window.pageYOffset === 0) {
+      window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
+    }
+    heightBefore = document.body.scrollHeight;
+    removeWeeks(store)('bottom');
+    if (offsetBefore === window.pageYOffset) {
+      window.scrollTo(0, heightBefore - document.body.scrollHeight);
+    }
+  } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight) {
+    addWeeks(store)(4);
+    let wtf = window.pageYOffset;
+    removeWeeks(store)('top');
+  }
+};
+
+export const scrollToToday = () => () => {
+  const scrollTo = window.app.todayDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
+  window.scroll(0, scrollTo);
 };

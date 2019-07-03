@@ -8,14 +8,14 @@ import { _tr } from '../common/utils.js';
 
 import css from '../css/Header.css';
 
-function Header({ scrollToToday }) {
+function Header() {
   const { store, actions } = useStore();
 
   function toToday() {
     const isTodayDOM = toJS(store.dates).indexOf(format(new Date(), 'YYYY-MM-DD')) > -1;
     if (isTodayDOM) {
       /* if we have DOM for today, just scroll */
-      scrollToToday();
+      actions.scrollToToday();
     } else {
       /* otherwise, build DOM around today */
       actions.toToday();
@@ -28,9 +28,5 @@ function Header({ scrollToToday }) {
     </css.HeaderWrapper>
   );
 }
-
-Header.propTypes = {
-  scrollToToday: PropTypes.func.isRequired,
-};
 
 export default Header;

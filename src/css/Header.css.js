@@ -18,7 +18,7 @@ css.HeaderWrapper = styled.div`
   width: 100%;
   background: #fff;
   box-shadow: 0 0 3px 0 #000;
-  z-index: 6;
+  z-index: 4;
   line-height: 50px;
   // animation: ${slide} 0.2s linear;
   top: 0;
@@ -27,13 +27,13 @@ css.HeaderWrapper = styled.div`
 css.Button = styled.div`
   float: right;
   border-radius: 5px;
-  border: 1px solid #555;
+  border: 1px solid #aaa;
   display: inline-block;
   line-height: 28px;
   padding: 0 10px;
   cursor: pointer;
   color: #555;
-  box-shadow: 0 0 2px 0 #555;
+  box-shadow: 0 0 2px 0 #aaa;
   margin-right: 15px;
 `;
 

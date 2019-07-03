@@ -112,9 +112,8 @@ api.postTodo = async (req, res) => {
               VALUES ($1, NOW())
            RETURNING id`;
   const newTodoResult = await pool.query(sql, [newTodo]);
-  let insertId;
-  if (newTodoResult.rows && newTodoResult.rows.length) {
-    insertId = newTodoResult.rows[0].id;
+  let insertId = newTodoResult && newTodoResult.rows && newTodoResult.rows.length && newTodoResult.rows[0].id;
+  if (day && newTodoResult.rows && newTodoResult.rows.length) {
     sql = `SELECT todos
              FROM "${cookie}".todo_ids
             WHERE day = $1
@@ -132,6 +131,8 @@ api.postTodo = async (req, res) => {
                 AND trash IS NULL`;
       await pool.query(sql, [rows[0].todos.concat(insertId), day]);
     }
+  }
+  if (insertId) {
     sql = `SELECT id,
                   todo
              FROM "${cookie}".todos
@@ -143,9 +144,10 @@ api.postTodo = async (req, res) => {
         id: insertedTodoResult.rows[0].id,
       };
     }
+    await pool.query('COMMIT;');
+  } else {
+    await pool.query('ROLLBACK;');
   }
-  sql = 'COMMIT;';
-  await pool.query(sql);
   if (response) {
     res.send(response);
   } else {
@@ -198,13 +200,16 @@ api._getTodos = async cookie => {
 
 api._getMultipleDayEvents = async cookie => {
   let sql = `
-    SELECT todo
+    SELECT id,
+           todo
       FROM "${cookie}".todos
      WHERE todo->>'to' IS NOT NULL
   `;
   const result = await pool.query(sql);
   if (result && result.rows && result.rows.length) {
-    return result.rows.map(row => row.todo);
+    return result.rows.map(row => {
+      return { ...row.todo, id: row.id };
+    });
   }
   return [];
 };

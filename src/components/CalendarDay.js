@@ -9,9 +9,9 @@ import { toJS } from 'mobx';
 import { useStore } from './Store.js';
 import Todo from './Todo.js';
 import { _tr, upFirst } from '../common/utils.js';
+import MultiDayEvent from './MultiDayEvent.js';
 
 import css from '../css/CalendarDay.css';
-import cssTodo from '../css/Todo';
 
 let preventClick = false;
 
@@ -48,7 +48,7 @@ function CalendarDay({ day }) {
 
   React.useEffect(() => {
     if (isToday(day)) {
-      window.todayDOM = domRef.current;
+      window.app.todayDOM = domRef.current;
       store.toToday = true;
     }
   }, []);
@@ -72,15 +72,18 @@ function CalendarDay({ day }) {
   }
 
   function onClickEvent(evt) {
-    if (window.highlightStartDay) {
-      // deselectAllHighlighted();
+    if (window.app.highlightStartDay && !window.app.highlightEndDay) {
+      deselectAllHighlighted();
       actions.showMultiDayInput(day);
-      delete window.highlightStartDay;
+      window.app.highlightEndDay = day;
       return;
     }
-    if (preventClick) return;
+    if (preventClick) {
+      return;
+    }
     if (evt.shiftKey) {
-      window.highlightStartDay = day;
+      actions.cancelTodo();
+      window.app.highlightStartDay = day;
       store.highlightObjects[day] = true;
       return;
     }
@@ -95,14 +98,14 @@ function CalendarDay({ day }) {
 
   function mouseAction({ action, day }) {
     document.querySelector('.header-distance').innerText = action === 'mouseEnter' ? renderDayDistance(day) : '';
-    if (window.highlightStartDay) {
+    if (window.app.highlightStartDay && !window.app.highlightEndDay) {
       if (action === 'mouseEnter') {
-        const [min, max] = [window.highlightStartDay, day].sort();
+        const [min, max] = [window.app.highlightStartDay, day].sort();
         [...Array(differenceInCalendarDays(max, min) + 1).keys()].reduce((prev, idx) => {
           store.highlightObjects[format(addDays(min, idx), 'YYYY-MM-DD')] = true;
         }, {});
       }
-      if (action === 'mouseLeave') {
+      if (action === 'mouseLeave' && !window.app.highlightEndDay) {
         deselectAllHighlighted();
       }
     }
@@ -174,32 +177,10 @@ function CalendarDay({ day }) {
   function renderMultiDayEvents() {
     let multiDayEvents = toJS(store.multiDay[day]);
     if (Array.isArray(multiDayEvents) && multiDayEvents.length) {
-      return multiDayEvents.map((event, idx) => {
-        return (
-          <css.multiDay key={idx} colorIdx={getMonth(day)}>
-            {event.title}
-          </css.multiDay>
-        );
+      return multiDayEvents.map(event => {
+        return <MultiDayEvent key={event.id} event={event} day={day} />;
       });
     }
-    // let inputOrText = store.multiDay[day];
-    // console.log('InputOrText =>', day, toJS(inputOrText));
-    // if (day === window.multiDayStart) {
-    //   inputOrText = (
-    //     <cssTodo.TodoInput
-    //       className="multi-day-input"
-    //       autoComplete="off"
-    //       autoCorrect="off"
-    //       autoCapitalize="off"
-    //       spellCheck="false"
-    //       rows={1}
-    //       type="text"
-    //     />
-    //   );
-    // }
-    // if (inputOrText) {
-    //   return <css.multiDay colorIdx={getMonth(day)}>{inputOrText}</css.multiDay>;
-    // }
     return null;
   }
 
@@ -212,7 +193,7 @@ function CalendarDay({ day }) {
       onMouseEnter={() => mouseAction({ action: 'mouseEnter', day: day })}
       onMouseLeave={() => mouseAction({ action: 'mouseLeave', day: day })}
       onClick={onClickEvent}
-      highlight={day === window.highlightStartDay || store.highlightObjects[day]}
+      highlight={store.highlightObjects[day]}
     >
       {renderDayOfWeek()}
       {renderMultiDayEvents()}

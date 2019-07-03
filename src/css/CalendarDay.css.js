@@ -1,22 +1,8 @@
 import styled from 'styled-components';
 import { rgba, setLightness } from 'polished';
+import { monthColors } from '../common/utils.js';
 
 const css = {};
-
-const monthColors = [
-  '#5061BF',
-  '#5CAAD8',
-  '#9DC65E',
-  '#693E95',
-  '#4A9656',
-  '#DA4B7E',
-  '#8F4C81',
-  '#F1B55F',
-  '#DF6B46',
-  '#DE594B',
-  '#644733',
-  '#B24143',
-];
 
 function borderColor(props) {
   let color = [0, 6].indexOf(props.dayWeekIdx) > -1 ? '#ccc' : rgba(monthColors[props.colorIdx], props.isToday ? 0.6 : 0.25);
@@ -41,7 +27,7 @@ css.Td = styled.div`
   height: 150px;
   vertical-align: top;
   border-radius: 5px;
-  border: 1px solid ${props => borderColor(props)};
+  border: 2px solid ${props => borderColor(props)};
   // box-shadow: ${props => (props.highlight ? 'inset 0 0 0 6px #f3f3f3' : 'default')};
   position: relative;
   width: calc(100% / 7);
@@ -93,22 +79,6 @@ css.TodoList = styled.div`
   > div + div {
     margin-top: 2px;
   }
-`;
-
-css.multiDay = styled.div`
-  background-color: ${props => setLightness(0.95, monthColors[props.colorIdx])};
-  // border: 1px solid ${props => setLightness(0.9, monthColors[props.colorIdx])};
-  border-radius: 3px;
-  // color: #fff;
-  color: ${props => setLightness(0.7, monthColors[props.colorIdx])};
-  padding: 0 3px;
-  vertical-align: top;
-  z-index: 5;
-  white-space: pre-wrap;
-  line-height: 21px;
-  margin-bottom: 2px;
-  width: 100%;
-  font-weight: 100;
 `;
 
 export default css;

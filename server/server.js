@@ -44,7 +44,7 @@ wss.on('connection', ws => {
   ws.send(googleSsoUrl);
 });
 
-app.get('/', async (req, res) => {
+app.get('/:id?', async (req, res) => {
   if (req.query && req.query.code) {
     const userInfo = await google.getGoogleAccountFromCode(req.query.code);
     await api.sso(userInfo);

@@ -28,13 +28,13 @@ css.TodoDashTd = styled.td`
 
 css.TodoText = styled.td`
   // background: rgba(0, 0, 0, 0.05);
-  padding: 3px;
+  padding: 2px;
   vertical-align: top;
   border-radius: 0 ${normalRadius} ${normalRadius} 0;
   z-index: 5;
   white-space: pre-wrap;
   color: ${props => (props.grey ? '#aaa' : 'inherit')};
-  line-height: 15px;
+  line-height: 17px;
 `;
 
 css.TodoInputCell = styled(css.TodoText)`
@@ -49,13 +49,17 @@ css.TodoTextarea = styled.textarea`
   font-size: 13px;
   font-weight: 400;
   width: 100%;
-  line-height: 15px;
+  line-height: 17px;
   vertical-align: bottom;
-  padding: 3px 4px 1px 3px;
+  padding: 2px 1px 1px 2px;
   resize: none;
   margin: 0 0 0 -3px;
   color: ${penColor};
-  height: 15px;
+  height: 17px;
+`;
+
+css.MultipleTextarea = styled(css.TodoTextarea)`
+  color: #fff;
 `;
 
 export default css;

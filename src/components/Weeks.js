@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { observer } from 'mobx-react-lite';
 import CalendarDay from './CalendarDay.js';
 import { toJS } from 'mobx';
@@ -21,7 +22,7 @@ const Weeks = ({ dates }) => {
     return prev;
   }, []);
 
-  return arrayedDates.map(week => {
+  const renderDates = arrayedDates.map(week => {
     let key;
     if (week[0].length > 1) key = week[0];
     if (week[6].length > 1) key = week[6];
@@ -46,6 +47,15 @@ const Weeks = ({ dates }) => {
       return <css.Tr key={key}>{renderDays(week)}</css.Tr>;
     }
   });
+  return (
+    <css.MainTableWrapper>
+      <css.WeeksTable>{renderDates}</css.WeeksTable>
+    </css.MainTableWrapper>
+  );
+};
+
+Weeks.propTypes = {
+  dates: PropTypes.array.isRequired,
 };
 
 export default observer(Weeks);

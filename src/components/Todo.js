@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import autosize from 'autosize';
 import { toJS } from 'mobx';
+import { navigate } from '@reach/router';
 
 import { useStore } from './Store.js';
 
@@ -54,6 +55,14 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     }
   }
 
+  function onClick(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (todo.id > -1) {
+      navigate(`/${toJS(todo).id}`);
+    }
+  }
+
   function renderTextOrInput() {
     let textOrInput = todo.title;
     if (todo.id === -1) {
@@ -67,6 +76,7 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
           rows={1}
           ref={todoInputRef}
           type="text"
+          onBlur={e => actions.onBlur(e, day)}
         />
       );
     }
@@ -81,7 +91,7 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
   }
 
   return (
-    <css.TodoTable ref={todoRef} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
+    <css.TodoTable ref={todoRef} onClick={onClick} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
       <tbody>
         <css.TodoTr>
           <css.TodoDashTd grey={toJS(todo).id < -1}>{idx + 1}.</css.TodoDashTd>

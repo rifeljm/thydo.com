@@ -27,3 +27,11 @@ exports.saveTodo = store => (day, title, options = {}) => {
 export const cancelTodo = store => day => {
   store.todos[day] = toJS(store.todos[day]).filter(todo => todo.id !== -1);
 };
+
+export const onBlur = store => (e, day) => {
+  if (e.target.value !== '') {
+    e.target.focus();
+  } else {
+    store.todos[day] = store.todos[day].filter(todo => todo.id !== -1);
+  }
+};

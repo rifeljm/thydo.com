@@ -1,9 +1,26 @@
 import axios from 'axios';
 import { toJS } from 'mobx';
-import { getDay, format, differenceInCalendarDays, addDays } from 'date-fns';
+import { format, differenceInCalendarDays, addDays } from 'date-fns';
+import { navigate } from '@reach/router';
 
-exports.showNewTodoInput = store => (evt, day) => {
+/**
+ * find editing todo in the store and cancel it
+ */
+export const cancelTodo = store => () => {
+  Object.keys(toJS(store.todos)).forEach(day => {
+    if (
+      toJS(store.todos[day])
+        .map(todo => todo.id)
+        .indexOf(-1) > -1
+    ) {
+      store.todos[day] = toJS(store.todos[day]).filter(todo => todo.id !== -1);
+    }
+  });
+};
+
+export const showNewTodoInput = store => (evt, day) => {
   const todoInput = document.querySelector('.todo-input');
+  console.log('todoINput', todoInput);
   if (todoInput) {
     if (todoInput.value !== '') {
       /* if we're editing another todo and there's already some text in it, cancel! */
@@ -12,16 +29,7 @@ exports.showNewTodoInput = store => (evt, day) => {
         return evt.preventDefault();
       }
     } else {
-      /* if editing todo is empty, find it in the store, and cancel it */
-      Object.keys(toJS(store.todos)).forEach(day => {
-        if (
-          toJS(store.todos[day])
-            .map(todo => todo.id)
-            .indexOf(-1) > -1
-        ) {
-          store.todos[day] = toJS(store.todos[day]).filter(todo => todo.id !== -1);
-        }
-      });
+      cancelTodo(store)();
     }
   }
   const todos = toJS(store.todos[day]) || [];
@@ -59,8 +67,8 @@ exports.handleOnSort = store => (evt, day, dom) => {
   let todos, item, source, target;
   let request = {};
   todos = toJS(store.todos[day]);
-  if (window.tempSortable) {
-    [source, target] = [window.tempSortable, sortable].sort(a => (a.isSource ? -1 : 1));
+  if (window.app.tempSortable) {
+    [source, target] = [window.app.tempSortable, sortable].sort(a => (a.isSource ? -1 : 1));
 
     const todosSource = toJS(store.todos)[source.day];
     item = { ...todosSource[source.oldIndex] };
@@ -73,7 +81,7 @@ exports.handleOnSort = store => (evt, day, dom) => {
     store.todos[target.day] = todosTarget;
     request.days.push({ day: target.day, todoIds: todosTarget.map(todo => todo.id) });
 
-    delete window.tempSortable;
+    delete window.app.tempSortable;
   }
 
   /* SORT ON THE SAME LIST (todos length in state is the same as "this sortable" element count */
@@ -84,7 +92,7 @@ exports.handleOnSort = store => (evt, day, dom) => {
     store.todos[day] = todos;
     request.days = { day, todoIds: todos.map(todo => todo.id) };
   } else if (!request.days) {
-    window.tempSortable = sortable;
+    window.app.tempSortable = sortable;
   }
   if (request.days) {
     axios.put('/api/sort-day', request).then(() => {
@@ -94,17 +102,25 @@ exports.handleOnSort = store => (evt, day, dom) => {
 };
 
 exports.showMultiDayInput = store => day => {
-  const [startDay, endDay] = [day, window.highlightStartDay].sort();
+  const [startDay, endDay] = [day, window.app.highlightStartDay].sort();
   const diff = differenceInCalendarDays(endDay, startDay);
   [...Array(diff + 1).keys()]
     .map(idx => format(addDays(startDay, idx), 'YYYY-MM-DD'))
     .forEach(day => {
       let multiDayArray = store.multiDay[day] || [];
-      multiDayArray.splice(0, 0, { id: -1 });
+      multiDayArray.splice(0, 0, { id: -1, title: '' });
       store.multiDay[day] = multiDayArray;
     });
-  window.multiDayStart = startDay;
-  setTimeout(() => {
-    document.querySelector('.multi-day-input').focus();
-  }, 0);
+  window.app.multiDayStart = startDay;
+};
+
+export const keyDownEvent = store => e => {
+  if (e.keyCode === 27 && window.location.pathname.length > 1) {
+    navigate('/');
+  }
+  if (e.keyCode === 13 && !e.shiftKey) {
+    const today = format(new Date(), 'YYYY-MM-DD');
+    showNewTodoInput(store)(e, today);
+    e.preventDefault();
+  }
 };
