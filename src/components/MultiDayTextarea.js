@@ -30,23 +30,35 @@ export default function MultiDayTextarea() {
     });
   }
 
+  function cancelEvent() {
+    const [min, max] = [window.app.highlightStartDay, window.app.highlightEndDay].sort();
+    fromToDays(min, max).forEach(day => {
+      if (Array.isArray(toJS(store.multiDay)[day]) && toJS(store.multiDay)[day].length) {
+        store.multiDay[day] = toJS(store.multiDay)[day].filter(event => event.id !== -1);
+      }
+    });
+    delete window.app.highlightStartDay;
+    delete window.app.highlightEndDay;
+  }
+
   function onKeyDown(e) {
-    if (e.keyCode === 13) {
+    if (e.keyCode === 13 && !e.shiftKey) {
       e.stopPropagation();
       e.preventDefault();
       actions.saveMultiDay();
     }
     if (e.keyCode === 27) {
-      const [min, max] = [window.app.highlightStartDay, window.app.highlightEndDay].sort();
-      fromToDays(min, max).forEach(day => {
-        if (Array.isArray(toJS(store.multiDay)[day]) && toJS(store.multiDay)[day].length) {
-          store.multiDay[day] = toJS(store.multiDay)[day].filter(event => event.id !== -1);
-        }
-      });
-      delete window.app.highlightStartDay;
-      delete window.app.highlightEndDay;
+      cancelEvent();
     }
   }
 
-  return <css.MultipleTextarea ref={textareaRef} onChange={updateOtherDays} onKeyDown={onKeyDown} />;
+  function onBlur(e) {
+    if (e.target.value === '') {
+      cancelEvent();
+    } else {
+      e.target.focus();
+    }
+  }
+
+  return <css.MultipleTextarea onBlur={onBlur} ref={textareaRef} onChange={updateOtherDays} onKeyDown={onKeyDown} />;
 }

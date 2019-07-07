@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import autosize from 'autosize';
 import { toJS } from 'mobx';
 import { navigate } from '@reach/router';
+import axios from 'axios';
 
 import { useStore } from './Store.js';
 
@@ -16,8 +17,11 @@ Todo.propTypes = {
   day: PropTypes.string.isRequired,
 };
 
+let mouseDown, todoDoneHappened;
+let cancelMouseUp = 0;
+
 function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
-  const { actions } = useStore();
+  const { store, actions } = useStore();
   const todoRef = React.useRef();
   const todoInputRef = React.useRef();
 
@@ -55,12 +59,44 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     }
   }
 
-  function onClick(e) {
+  function onMouseDown() {
+    mouseDown = true;
+    cancelMouseUp = 0;
+    setTimeout(() => {
+      if (cancelMouseUp < 2 && mouseDown) {
+        todoDoneHappened = true;
+        store.todos[day] = toJS(store.todos)[day].map(tempTodo => {
+          return tempTodo.id === todo.id ? { ...tempTodo, f: !tempTodo.f } : tempTodo;
+        });
+        axios.put('/api/todo', { id: todo.id, todo: { f: !todo.f }, day }).then(() => {});
+      }
+      mouseDown = false;
+      cancelMouseUp = 0;
+    }, 300);
+  }
+
+  function onMouseMove() {
+    if (mouseDown) {
+      cancelMouseUp++;
+    }
+  }
+
+  function onMouseUp(e) {
     e.preventDefault();
     e.stopPropagation();
-    if (todo.id > -1) {
-      navigate(`/${toJS(todo).id}`);
+    if (!todoDoneHappened && !cancelMouseUp) {
+      if (todo.id > -1) {
+        navigate(`/${toJS(todo).id}`);
+      }
+      todoDoneHappened = false;
     }
+    cancelMouseUp = 0;
+    todoDoneHappened = false;
+    mouseDown = false;
+  }
+
+  function onClick(e) {
+    e.stopPropagation();
   }
 
   function renderTextOrInput() {
@@ -87,14 +123,28 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
         </css.TodoInputCell>
       );
     }
-    return <css.TodoText grey={toJS(todo).id < -1}>{textOrInput}</css.TodoText>;
+    return (
+      <css.TodoText done={!!todo.f} grey={toJS(todo).id < -1}>
+        {textOrInput}
+      </css.TodoText>
+    );
   }
 
   return (
-    <css.TodoTable ref={todoRef} onClick={onClick} onMouseEnter={() => mouseEnterTodo(idx)} onMouseLeave={() => mouseLeaveTodo(idx)}>
+    <css.TodoTable
+      ref={todoRef}
+      onMouseMove={onMouseMove}
+      onMouseDown={onMouseDown}
+      onMouseUp={onMouseUp}
+      onClick={onClick}
+      onMouseEnter={() => mouseEnterTodo(idx)}
+      onMouseLeave={() => mouseLeaveTodo(idx)}
+    >
       <tbody>
         <css.TodoTr>
-          <css.TodoDashTd grey={toJS(todo).id < -1}>{idx + 1}.</css.TodoDashTd>
+          <css.TodoDashTd done={!!todo.f} grey={toJS(todo).id < -1}>
+            {idx + 1}.
+          </css.TodoDashTd>
           {renderTextOrInput()}
         </css.TodoTr>
       </tbody>

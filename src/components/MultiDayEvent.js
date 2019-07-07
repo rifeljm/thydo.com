@@ -11,7 +11,9 @@ import css from '../css/MultiDayEvent.css';
 function MultiDayEvent({ event, day }) {
   function onClick(e) {
     e.stopPropagation();
-    navigate(`/${event.id}`);
+    if (event.id > 0) {
+      navigate(`/${event.id}`);
+    }
   }
 
   let textarea;

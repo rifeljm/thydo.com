@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { observer } from 'mobx-react-lite';
 import { navigate } from '@reach/router';
 import autosize from 'autosize';
 
@@ -63,12 +62,12 @@ function TodoModal({ id }) {
           <css.Table>
             <css.TitleCell>{renderTitle()}</css.TitleCell>
             <css.Cell>
-              <css.SVG dangerouslySetInnerHTML={{ __html: trashSvg }} />
+              <css.SVG onClick={() => actions.deleteTodo(todo)} dangerouslySetInnerHTML={{ __html: trashSvg }} />
             </css.Cell>
           </css.Table>
         </css.Form>
         <css.Bottom>
-          <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} />
+          {!todo.to ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
           <Button active={todo.title !== title} title="Save" float="right" colorIdx={colorIdx} />
         </css.Bottom>
       </css.Modal>
@@ -80,4 +79,4 @@ TodoModal.propTypes = {
   id: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
 };
 
-export default observer(TodoModal);
+export default TodoModal;

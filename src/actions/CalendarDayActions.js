@@ -20,7 +20,6 @@ export const cancelTodo = store => () => {
 
 export const showNewTodoInput = store => (evt, day) => {
   const todoInput = document.querySelector('.todo-input');
-  console.log('todoINput', todoInput);
   if (todoInput) {
     if (todoInput.value !== '') {
       /* if we're editing another todo and there's already some text in it, cancel! */

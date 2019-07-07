@@ -32,7 +32,7 @@ css.Td = styled.div`
   position: relative;
   width: calc(100% / 7);
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
   background-color: ${props => dayBg(props)};
 `;
 

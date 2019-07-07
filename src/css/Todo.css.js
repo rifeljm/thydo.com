@@ -11,7 +11,6 @@ css.TodoTable = styled.table`
   width: 100%;
   color: ${penColor};
   border-radius: ${normalRadius};
-  // background: rgba(0, 0, 0, 0.05);
 `;
 
 css.TodoTr = styled.tr`
@@ -19,15 +18,15 @@ css.TodoTr = styled.tr`
 `;
 
 css.TodoDashTd = styled.td`
-  padding: 2px 0 3px 3px;
+  padding: 3px 0 0 3px;
   vertical-align: top;
   border-radius: ${normalRadius} 0 0 ${normalRadius};
   width: 10px;
   color: ${props => (props.grey ? '#aaa' : 'inherit')};
+  text-decoration: ${props => (props.done ? 'line-through' : 'inherit')};
 `;
 
 css.TodoText = styled.td`
-  // background: rgba(0, 0, 0, 0.05);
   padding: 2px;
   vertical-align: top;
   border-radius: 0 ${normalRadius} ${normalRadius} 0;
@@ -35,6 +34,8 @@ css.TodoText = styled.td`
   white-space: pre-wrap;
   color: ${props => (props.grey ? '#aaa' : 'inherit')};
   line-height: 17px;
+  text-decoration: ${props => (props.done ? 'line-through' : 'inherit')};
+  cursor: pointer;
 `;
 
 css.TodoInputCell = styled(css.TodoText)`

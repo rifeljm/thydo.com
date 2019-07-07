@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { getDay, getMonth, format, differenceInCalendarDays, addDays } from 'date-fns';
-import locale from 'date-fns/locale/sl';
+import locale from 'date-fns/locale/en';
 import Sortable from 'sortablejs';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
@@ -199,7 +199,6 @@ function CalendarDay({ day }) {
       {renderMultiDayEvents()}
       {renderTodoList()}
       {renderMonth(day)}
-
       <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={getDay(day)} monthIdx={getMonth(day)}>
         {day.substring(8).replace(/^0/, '')}
       </css.BottomRightDay>

@@ -1,0 +1,12 @@
+version: '3'
+services:
+  webpack:
+    build:
+      context: .
+    container_name: thydo_webpack_build
+    command: npm run build
+    volumes:
+      - '.:/app'
+      - '/app/node_modules'
+    environment:
+      - NODE_ENV=production

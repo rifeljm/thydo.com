@@ -18,7 +18,7 @@ api.createTables = async () => {
     tokens jsonb,
     google_id text,
     creation_time timestamp without time zone,
-    "time" timestamp without time zone,
+    "time" timestamp without time zone default now(),
     primary key(id))`;
   await pool.query(sql);
   sql = `
@@ -65,7 +65,7 @@ api.sso = async user => {
            VALUES ($1, $2, $3, $4, $5, NOW())
            RETURNING id
     `;
-    const insertedId = await pool.query(sql, [user.googleId, user.email, user.displayName, user.avatar, user.tokens, randomCookie]);
+    await pool.query(sql, [user.googleId, user.email, user.displayName, user.avatar, user.tokens, randomCookie]);
   }
   return true;
 };
@@ -89,7 +89,7 @@ api.authenticateMiddleware = async (req, res, next) => {
       await pool.query('BEGIN');
       sql = `INSERT INTO sessions (cookie, time)
                   VALUES ($1, NOW())`;
-      const insertSession = await pool.query(sql, [req.cookies.thydo_user]);
+      await pool.query(sql, [req.cookies.thydo_user]);
       await api.createUserTable(req.cookies.thydo_user);
     }
     if (req.method === 'GET') {
@@ -176,7 +176,8 @@ api._getTodos = async cookie => {
               FROM "${cookie}".todo_ids
              WHERE trash IS NULL
           ORDER BY day) ti
-     WHERE ti.tid = t.id;
+     WHERE ti.tid = t.id
+       AND t.trash IS NULL
   `;
   try {
     todosResult = await pool.query(sql);
@@ -204,6 +205,7 @@ api._getMultipleDayEvents = async cookie => {
            todo
       FROM "${cookie}".todos
      WHERE todo->>'to' IS NOT NULL
+       AND trash IS NULL
   `;
   const result = await pool.query(sql);
   if (result && result.rows && result.rows.length) {
@@ -234,6 +236,42 @@ api.putSortDay = async (req, res) => {
   res.send(req.body.days);
 };
 
+api.deleteTodo = async (req, res) => {
+  const cookie = req.cookies.thydo_user;
+  const { day, id, multi } = req.body;
+  let sql = 'BEGIN;';
+  await pool.query(sql);
+  if (!multi) {
+    sql = `SELECT id,
+                  todos
+             FROM "${cookie}".todo_ids
+            WHERE day = $1
+              AND trash IS NULL`;
+    const result = await pool.query(sql, [day]);
+    if (result && Array.isArray(result.rows) && result.rows.length) {
+      const row = result.rows[0];
+      const newTodos = row.todos.filter(todoId => id !== todoId);
+      if (newTodos.length) {
+        sql = `UPDATE "${cookie}".todo_ids
+                  SET trash = $1
+                WHERE id = $2`;
+        await pool.query(sql, [true, row.id]);
+        sql = `INSERT INTO "${cookie}".todo_ids
+                           (day, todos)
+                    VALUES ($1, $2)`;
+        await pool.query(sql, [day, newTodos]);
+      }
+    }
+  }
+  sql = `UPDATE "${cookie}".todos
+            SET trash = $1
+            WHERE id = $2`;
+  await pool.query(sql, [true, id]);
+  sql = 'COMMIT;';
+  await pool.query(sql);
+  res.send(req.body);
+};
+
 api.schemaExists = async cookie => {
   let sql = `
     SELECT schema_name
@@ -244,6 +282,48 @@ api.schemaExists = async cookie => {
     return true;
   }
   return false;
+};
+
+api.putTodo = async (req, res) => {
+  await pool.query('BEGIN');
+  const cookie = req.cookies.thydo_user;
+  let sql = `
+    SELECT todo
+      FROM "${cookie}".todos
+     WHERE id = $1
+       AND trash IS NULL`;
+  let result = await pool.query(sql, [req.body.id]);
+  if (result && result.rows && result.rows.length) {
+    const todo = result.rows[0].todo;
+    sql = `UPDATE "${cookie}".todos
+              SET todo = $1
+            WHERE id = $2`;
+    result = await pool.query(sql, [Object.assign(todo, req.body.todo), req.body.id]);
+    console.log('RESULT:', result);
+  }
+  // let sql = `
+  //   SELECT todo
+  //     FROM "${cookie}".todos
+  //    WHERE id = $1
+  // `;
+  // let result = await pool.query(sql, [req.body.id]);
+  // if (result && result.rows && result.rows.length) {
+  //   const todo = result.rows[0].todo;
+  //   sql = `INSERT INTO "${cookie}".todos
+  //          (todo)
+  //          VALUES ($1)
+  //       RETURNING id`;
+  //   await pool.query(sql, [Object.assign(todo, req.body.todo)]);
+  //   if (result && result.rows && result.rows.length) {
+  //     const newId = result.rows[0].id;
+  //     sql = `UPDATE "${cookie}".todos
+  //               SET trash = true
+  //             WHERE id = $1`;
+  //     await pool.query(sql, [req.body.id]);
+  //   }
+  // }
+  await pool.query('COMMIT');
+  res.send(req.body);
 };
 
 module.exports = api;
