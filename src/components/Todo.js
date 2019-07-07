@@ -59,20 +59,28 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     }
   }
 
-  function onMouseDown() {
-    mouseDown = true;
-    cancelMouseUp = 0;
-    setTimeout(() => {
-      if (cancelMouseUp < 2 && mouseDown) {
-        todoDoneHappened = true;
-        store.todos[day] = toJS(store.todos)[day].map(tempTodo => {
-          return tempTodo.id === todo.id ? { ...tempTodo, f: !tempTodo.f } : tempTodo;
-        });
-        axios.put('/api/todo', { id: todo.id, todo: { f: !todo.f }, day }).then(() => {});
-      }
-      mouseDown = false;
+  function onMouseDown(e) {
+    console.log('e.button', e.button);
+    if (e.button === 2) {
+      console.log('WTF?!');
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (e.button === 0) {
+      mouseDown = true;
       cancelMouseUp = 0;
-    }, 300);
+      setTimeout(() => {
+        if (cancelMouseUp < 2 && mouseDown) {
+          todoDoneHappened = true;
+          store.todos[day] = toJS(store.todos)[day].map(tempTodo => {
+            return tempTodo.id === todo.id ? { ...tempTodo, f: !tempTodo.f } : tempTodo;
+          });
+          axios.put('/api/todo', { id: todo.id, todo: { f: !todo.f }, day }).then(() => {});
+        }
+        mouseDown = false;
+        cancelMouseUp = 0;
+      }, 300);
+    }
   }
 
   function onMouseMove() {
@@ -82,17 +90,19 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
   }
 
   function onMouseUp(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    if (!todoDoneHappened && !cancelMouseUp) {
-      if (todo.id > -1) {
-        navigate(`/${toJS(todo).id}`);
+    if (e.button === 0) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!todoDoneHappened && !cancelMouseUp) {
+        if (todo.id > -1) {
+          navigate(`/${toJS(todo).id}`);
+        }
+        todoDoneHappened = false;
       }
+      cancelMouseUp = 0;
       todoDoneHappened = false;
+      mouseDown = false;
     }
-    cancelMouseUp = 0;
-    todoDoneHappened = false;
-    mouseDown = false;
   }
 
   function onClick(e) {

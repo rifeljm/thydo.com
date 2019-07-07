@@ -67,7 +67,7 @@ function TodoModal({ id }) {
           </css.Table>
         </css.Form>
         <css.Bottom>
-          {!todo.to ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
+          {!todo.to && !todo.f ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
           <Button active={todo.title !== title} title="Save" float="right" colorIdx={colorIdx} />
         </css.Bottom>
       </css.Modal>
