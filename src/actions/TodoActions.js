@@ -35,3 +35,12 @@ export const onBlur = store => (e, day) => {
     store.todos[day] = store.todos[day].filter(todo => todo.id !== -1);
   }
 };
+
+export const toggleTodoDone = store => (e, todo, day) => {
+  store.todos[day] = toJS(store.todos)[day].map(tempTodo => {
+    return tempTodo.id === todo.id ? { ...tempTodo, f: !tempTodo.f } : tempTodo;
+  });
+  axios.put('/api/todo', { id: todo.id, todo: { f: !todo.f }, day }).then(() => {
+    /* todo: handle error */
+  });
+};

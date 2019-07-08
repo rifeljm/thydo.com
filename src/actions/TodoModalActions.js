@@ -47,3 +47,21 @@ export const deleteTodo = store => todo => {
     }
   });
 };
+
+export const saveModal = store => ({ id, title, day, active }) => {
+  if (active) {
+    const todo = {
+      title,
+    };
+    axios.put('/api/todo/', { id, todo }).then(response => {
+      const { id, todo } = response.data;
+      store.todos[day] = toJS(store.todos[day]).map(t => {
+        const newTodo = {
+          title: todo.title,
+        };
+        return id === t.id ? Object.assign(t, newTodo) : t;
+      });
+      navigate('/');
+    });
+  }
+};

@@ -35,6 +35,7 @@ function TodoModal({ id }) {
         onKeyDown={onKeyDown}
         onChange={e => changeTitle(e.target.value)}
         value={title}
+        done={todo.f}
       />
     );
   }
@@ -54,6 +55,9 @@ function TodoModal({ id }) {
     }
   }
 
+  const active = todo.title !== title;
+  const day = todo.day;
+
   return (
     <React.Fragment>
       <css.Overlay onClick={onOverlayClick} />
@@ -68,7 +72,7 @@ function TodoModal({ id }) {
         </css.Form>
         <css.Bottom>
           {!todo.to && !todo.f ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
-          <Button active={todo.title !== title} title="Save" float="right" colorIdx={colorIdx} />
+          <Button onClick={() => actions.saveModal({ id, title, day, active })} active={active} title="Save" float="right" colorIdx={colorIdx} />
         </css.Bottom>
       </css.Modal>
     </React.Fragment>
@@ -76,7 +80,7 @@ function TodoModal({ id }) {
 }
 
 TodoModal.propTypes = {
-  id: PropTypes.oneOfType([PropTypes.object, PropTypes.string]),
+  id: PropTypes.oneOfType([PropTypes.object, PropTypes.number]),
 };
 
 export default TodoModal;

@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import autosize from 'autosize';
 import { toJS } from 'mobx';
 import { navigate } from '@reach/router';
-import axios from 'axios';
 
 import { useStore } from './Store.js';
 
@@ -21,7 +20,7 @@ let mouseDown, todoDoneHappened;
 let cancelMouseUp = 0;
 
 function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
-  const { store, actions } = useStore();
+  const { actions } = useStore();
   const todoRef = React.useRef();
   const todoInputRef = React.useRef();
 
@@ -60,26 +59,18 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
   }
 
   function onMouseDown(e) {
-    console.log('e.button', e.button);
-    if (e.button === 2) {
-      console.log('WTF?!');
-      e.preventDefault();
-      e.stopPropagation();
-    }
     if (e.button === 0) {
       mouseDown = true;
       cancelMouseUp = 0;
       setTimeout(() => {
+        /* long click */
         if (cancelMouseUp < 2 && mouseDown) {
           todoDoneHappened = true;
-          store.todos[day] = toJS(store.todos)[day].map(tempTodo => {
-            return tempTodo.id === todo.id ? { ...tempTodo, f: !tempTodo.f } : tempTodo;
-          });
-          axios.put('/api/todo', { id: todo.id, todo: { f: !todo.f }, day }).then(() => {});
+          actions.toggleTodoDone(e, todo, day);
         }
         mouseDown = false;
         cancelMouseUp = 0;
-      }, 300);
+      }, 400);
     }
   }
 

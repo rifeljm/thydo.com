@@ -30,7 +30,7 @@ function App({ id }) {
   return (
     <React.Fragment>
       <css.GlobalStyle />
-      {id ? <TodoModal id={id} /> : null}
+      {id ? <TodoModal id={parseInt(id, 10)} /> : null}
       <Header />
       <Weeks dates={store.dates} />
     </React.Fragment>
