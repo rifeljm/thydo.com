@@ -2,6 +2,8 @@ import { toJS } from 'mobx';
 import axios from 'axios';
 import { navigate } from '@reach/router';
 
+import { fromToDays } from '../common/utils.js';
+
 export const getTodoData = store => id => {
   const multiDay = toJS(store).multiDay || {};
   let todo = Object.keys(multiDay).reduce((prev, day) => {
@@ -48,19 +50,29 @@ export const deleteTodo = store => todo => {
   });
 };
 
-export const saveModal = store => ({ id, title, day, active }) => {
+export const saveModal = store => ({ id, title, active }) => {
+  const oldTodo = getTodoData(store)(id);
+  const day = oldTodo.day;
   if (active) {
     const todo = {
       title,
     };
     axios.put('/api/todo/', { id, todo }).then(response => {
       const { id, todo } = response.data;
-      store.todos[day] = toJS(store.todos[day]).map(t => {
-        const newTodo = {
-          title: todo.title,
-        };
-        return id === t.id ? Object.assign(t, newTodo) : t;
-      });
+      const newTodo = {
+        title: todo.title,
+      };
+      if (oldTodo.to) {
+        fromToDays(oldTodo.from, oldTodo.to).forEach(day => {
+          store.multiDay[day] = toJS(store.multiDay)[day].map(t => {
+            return id === t.id ? Object.assign(t, newTodo) : t;
+          });
+        });
+      } else {
+        store.todos[day] = toJS(store.todos)[day].map(t => {
+          return id === t.id ? Object.assign(t, newTodo) : t;
+        });
+      }
       navigate('/');
     });
   }

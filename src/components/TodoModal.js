@@ -56,7 +56,6 @@ function TodoModal({ id }) {
   }
 
   const active = todo.title !== title;
-  const day = todo.day;
 
   return (
     <React.Fragment>
@@ -72,7 +71,7 @@ function TodoModal({ id }) {
         </css.Form>
         <css.Bottom>
           {!todo.to && !todo.f ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
-          <Button onClick={() => actions.saveModal({ id, title, day, active })} active={active} title="Save" float="right" colorIdx={colorIdx} />
+          <Button onClick={() => actions.saveModal({ id, title, active })} active={active} title="Save" float="right" colorIdx={colorIdx} />
         </css.Bottom>
       </css.Modal>
     </React.Fragment>
