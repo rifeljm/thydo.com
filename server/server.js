@@ -1,4 +1,4 @@
-/* React SSR (after we merge docker containers - webpack and server) */
+/* React SSR (if we'll need it for optimization anytime in the future) */
 // require('@babel/register')({
 //   presets: ['@babel/preset-env', '@babel/preset-react'],
 //   ignore: [/node_modules/],
