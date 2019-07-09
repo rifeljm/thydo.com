@@ -33,7 +33,7 @@ css.TodoText = styled.td`
   z-index: 5;
   white-space: pre-wrap;
   color: ${props => (props.grey ? '#aaa' : 'inherit')};
-  line-height: 17px;
+  line-height: 18px;
   text-decoration: ${props => (props.done ? 'line-through' : 'inherit')};
   cursor: pointer;
 `;
@@ -47,16 +47,16 @@ css.TodoTextarea = styled.textarea`
   border: 0;
   outline: none;
   background: rgba(0, 0, 0, 0.005);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 400;
   width: 100%;
-  line-height: 17px;
+  line-height: 18px;
   vertical-align: bottom;
-  padding: 2px 1px 1px 2px;
+  padding: 2px 0 1px 2px;
   resize: none;
   margin: 0 0 0 -3px;
   color: ${penColor};
-  height: 17px;
+  height: 18px;
 `;
 
 css.MultipleTextarea = styled(css.TodoTextarea)`

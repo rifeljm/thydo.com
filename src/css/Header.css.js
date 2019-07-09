@@ -19,7 +19,6 @@ css.HeaderWrapper = styled.div`
   background: #fff;
   box-shadow: 0 0 3px 0 #000;
   z-index: 4;
-  line-height: 50px;
   // animation: ${slide} 0.2s linear;
   top: 0;
 `;
@@ -29,12 +28,14 @@ css.Button = styled.div`
   border-radius: 5px;
   border: 1px solid #aaa;
   display: inline-block;
-  line-height: 28px;
-  padding: 0 10px;
+  padding: 5px 10px;
+  height: 32px;
   cursor: pointer;
   color: #555;
   box-shadow: 0 0 2px 0 #aaa;
   margin-right: 15px;
+  white-space: nowrap;
+  vertical-align: top;
 `;
 
 css.DayDistance = styled.div`
@@ -42,6 +43,17 @@ css.DayDistance = styled.div`
   font-size: 15px;
   display: inline-block;
   line-height: 30px;
+  vertical-align: top;
+`;
+
+css.googleSsoSvg = styled.div`
+  display: inline-block;
+  padding-top: 1px;
+`;
+
+css.googleSsoText = styled.div`
+  margin: 0 5px;
+  display: inline-block;
   vertical-align: top;
 `;
 

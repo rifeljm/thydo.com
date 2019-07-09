@@ -28,7 +28,6 @@ css.Td = styled.div`
   vertical-align: top;
   border-radius: 5px;
   border: 2px solid ${props => borderColor(props)};
-  // box-shadow: ${props => (props.highlight ? 'inset 0 0 0 6px #f3f3f3' : 'default')};
   position: relative;
   width: calc(100% / 7);
   cursor: pointer;
@@ -72,7 +71,7 @@ css.Month = styled.div`
 `;
 
 css.TodoList = styled.div`
-  font-size: 13px;
+  font-size: 14px;
   position: relative;
   z-index: 2;
   height: 100%;

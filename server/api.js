@@ -169,6 +169,7 @@ api._getTodos = async cookie => {
   sql = `
     SELECT t.id,
            t.todo,
+           substring(t.time::text, 1, 16) AS time,
            ti.day
       FROM "${cookie}".todos t,
            (SELECT day,
@@ -193,6 +194,7 @@ api._getTodos = async cookie => {
       const obj = row.todo;
       delete obj.day;
       obj.id = row.id;
+      obj.c = row.time.replace(/:|-| /g, ''); /* creation time */
       todosResponse[day].push(obj);
     });
   }
@@ -298,30 +300,8 @@ api.putTodo = async (req, res) => {
     sql = `UPDATE "${cookie}".todos
               SET todo = $1
             WHERE id = $2`;
-    result = await pool.query(sql, [Object.assign(todo, req.body.todo), req.body.id]);
-    console.log('RESULT:', result);
+    await pool.query(sql, [Object.assign(todo, req.body.todo), req.body.id]);
   }
-  // let sql = `
-  //   SELECT todo
-  //     FROM "${cookie}".todos
-  //    WHERE id = $1
-  // `;
-  // let result = await pool.query(sql, [req.body.id]);
-  // if (result && result.rows && result.rows.length) {
-  //   const todo = result.rows[0].todo;
-  //   sql = `INSERT INTO "${cookie}".todos
-  //          (todo)
-  //          VALUES ($1)
-  //       RETURNING id`;
-  //   await pool.query(sql, [Object.assign(todo, req.body.todo)]);
-  //   if (result && result.rows && result.rows.length) {
-  //     const newId = result.rows[0].id;
-  //     sql = `UPDATE "${cookie}".todos
-  //               SET trash = true
-  //             WHERE id = $1`;
-  //     await pool.query(sql, [req.body.id]);
-  //   }
-  // }
   await pool.query('COMMIT');
   res.send(req.body);
 };

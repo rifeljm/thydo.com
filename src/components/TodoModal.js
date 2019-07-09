@@ -51,6 +51,7 @@ function TodoModal({ id }) {
       e.stopPropagation();
       if (!e.shiftKey) {
         e.preventDefault();
+        actions.saveModal({ id, title, active });
       }
     }
   }

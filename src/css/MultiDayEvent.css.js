@@ -15,13 +15,13 @@ css.multiDay = styled.div`
   white-space: pre-wrap;
   margin-bottom: 2px;
   width: 100%;
-  font-size: 13px;
+  font-size: 14px;
   margin: 1px 0;
 `;
 
 css.eventTitle = styled.div`
-  padding: 2px 1px 1px 0;
-  line-height: 17px;
+  padding: 2px 2px 1px 0;
+  line-height: 18px;
   margin-left: -1px;
 `;
 

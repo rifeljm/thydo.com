@@ -1,7 +1,7 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { toJS } from 'mobx';
 import { format } from 'date-fns';
+import { gSvg } from '../common/utils.js';
 
 import { useStore } from './Store.js';
 import { _tr } from '../common/utils.js';
@@ -25,6 +25,10 @@ function Header() {
     <css.HeaderWrapper>
       <css.DayDistance className="header-distance" />
       <css.Button onClick={toToday}>{_tr('Today')}</css.Button>
+      <css.Button onClick={actions.googleSSO}>
+        <css.googleSsoSvg dangerouslySetInnerHTML={{ __html: gSvg }} />
+        <css.googleSsoText>{_tr('Connect')}</css.googleSsoText>
+      </css.Button>
     </css.HeaderWrapper>
   );
 }
