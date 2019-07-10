@@ -68,6 +68,12 @@ export const processInitData = store => allEntries => {
     store.multiDay = initMultiDay;
     delete allEntries.multiDay;
   }
+  window.app.googleSSO = allEntries.googleSSO;
+  delete allEntries.googleSSO;
+  if (allEntries.user) {
+    window.app.user = allEntries.user;
+    delete allEntries.user;
+  }
   store.todos = allEntries;
 };
 

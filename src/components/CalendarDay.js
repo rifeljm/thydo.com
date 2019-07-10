@@ -97,7 +97,7 @@ function CalendarDay({ day }) {
   }
 
   function mouseAction({ action, day }) {
-    document.querySelector('.header-distance').innerText = action === 'mouseEnter' ? renderDayDistance(day) : '';
+    // document.querySelector('.header-distance').innerText = action === 'mouseEnter' ? renderDayDistance(day) : '';
     if (window.app.highlightStartDay && !window.app.highlightEndDay) {
       if (action === 'mouseEnter') {
         const [min, max] = [window.app.highlightStartDay, day].sort();

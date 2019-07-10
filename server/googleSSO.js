@@ -5,7 +5,7 @@ const g = {};
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect: 'http://thydo.com',
+  redirect: process.env.NODE_ENV === 'production' ? 'http://thydo.com' : 'http://dev.thydo.com',
 };
 
 const defaultScope = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
@@ -23,9 +23,11 @@ function getGooglePlusApi(auth) {
 }
 
 g.createConnection = () => {
-  return new google.auth.OAuth2(googleConfig.clientId, googleConfig.clientSecret, googleConfig.redirect);
+  auth = new google.auth.OAuth2(googleConfig.clientId, googleConfig.clientSecret, googleConfig.redirect);
+  return auth;
 };
 
+let auth;
 g.getGoogleAccountFromCode = async code => {
   const data = await auth.getToken(code);
   const tokens = data.tokens;
@@ -36,13 +38,13 @@ g.getGoogleAccountFromCode = async code => {
   const userGoogleEmail = me.data.emails && me.data.emails.length && me.data.emails[0].value;
   const userGoogleDisplayName = me.data && me.data.displayName;
   const userGoogleAvatar = me.data.image && me.data.image.url;
-  console.log('================== me ==================', me.data);
   return {
     googleId: userGoogleId,
     email: userGoogleEmail,
     displayName: userGoogleDisplayName,
     avatar: userGoogleAvatar,
     tokens: tokens,
+    lang: me.data.language,
   };
 };
 

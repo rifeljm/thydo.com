@@ -45,25 +45,43 @@ wss.on('connection', ws => {
 });
 
 app.get('/:id?', async (req, res) => {
+  const cookie = req.cookies.thydo_user;
   if (req.query && req.query.code) {
     const userInfo = await google.getGoogleAccountFromCode(req.query.code);
-    await api.sso(userInfo);
+    await api.sso(cookie, userInfo);
+    res.redirect('/');
+    return;
   }
-  let todos = {};
-  if (!req.cookies.thydo_user) {
+  let data = {};
+  if (!cookie) {
     /* cookie expires after 10 years */
-    res.cookie('thydo_user', randomString(16), { maxAge: 10 * 365 * 24 * 60 * 60 * 1000, httpOnly: true });
+    res.cookie('thydo_user', randomString(16), { maxAge: 10 * 365 * 24 * 60 * 60 * 1000, httpOnly: false });
   } else {
-    let schemaExistsForCookie = await api.schemaExists(req.cookies.thydo_user);
-    if (schemaExistsForCookie) {
-      todos = await api._getAllEvents(req, res);
+    const user = await api.getSchemaForCookie(cookie);
+    let schemaExistsForCookie;
+    if (!user) {
+      schemaExistsForCookie = await api.schemaExists(cookie);
+    }
+    if (user || schemaExistsForCookie) {
+      const email = user ? user.email : null;
+      data = await api._getAllEvents(email || cookie);
+      data.user = user;
     }
   }
-  let indexHtml = req.headers.host.indexOf('thydo.com') > -1 ? productionIndexHtml : indexHTML(JSON.stringify(todos));
-  indexHtml = indexHtml.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(todos)}</script>`);
-  res.send(indexHtml);
+  data.googleSSO = googleSsoUrl;
+  let html;
+  if (req.headers.host.indexOf('thydo.com') > -1 && req.headers.host.indexOf('dev.thydo.com') === -1) {
+    html = productionIndexHtml;
+    html = html.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(data)}</script>`);
+  } else {
+    html = indexHTML(JSON.stringify(data));
+  }
+  res.send(html);
 });
 
+/**
+ * API calls
+ */
 app.post('/api/todo', api.authenticateMiddleware, api.postTodo);
 app.put('/api/sort-day', api.authenticateMiddleware, api.putSortDay);
 app.delete('/api/todo', api.authenticateMiddleware, api.deleteTodo);

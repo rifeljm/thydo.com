@@ -8,12 +8,9 @@ import { navigate } from '@reach/router';
  */
 export const cancelTodo = store => () => {
   Object.keys(toJS(store.todos)).forEach(day => {
-    if (
-      toJS(store.todos[day])
-        .map(todo => todo.id)
-        .indexOf(-1) > -1
-    ) {
-      store.todos[day] = toJS(store.todos[day]).filter(todo => todo.id !== -1);
+    const dayTodos = toJS(store.todos)[day] || [];
+    if (dayTodos.map(todo => todo.id).indexOf(-1) > -1) {
+      store.todos[day] = dayTodos.filter(todo => todo.id !== -1);
     }
   });
 };
