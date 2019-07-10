@@ -2,6 +2,7 @@ import React from 'react';
 import { toJS } from 'mobx';
 import { format } from 'date-fns';
 import { gSvg, cogSvg, signOutSvg } from '../common/utils.js';
+import { observer } from 'mobx-react-lite';
 
 import { useStore } from './Store.js';
 import { _tr } from '../common/utils.js';
@@ -10,8 +11,6 @@ import css from '../css/Header.css';
 
 function Header() {
   const { store, actions } = useStore();
-
-  const [showDropdown, toggleDropdown] = React.useState();
 
   function toToday() {
     const isTodayDOM = toJS(store.dates).indexOf(format(new Date(), 'YYYY-MM-DD')) > -1;
@@ -25,7 +24,7 @@ function Header() {
   }
 
   function dropdownAction(action) {
-    toggleDropdown(false);
+    store.showUserDropdown = false;
     if (action === 'logout') {
       document.cookie = 'thydo_user=; expires=-999999999';
       document.location = '/';
@@ -56,8 +55,13 @@ function Header() {
   }
 
   function renderDropdown() {
-    if (!showDropdown) return null;
+    if (!store.showUserDropdown) return null;
     return <css.accountDropdownModal>{renderActions()}</css.accountDropdownModal>;
+  }
+
+  function googleSsoClick(e) {
+    e.stopPropagation();
+    store.showUserDropdown = true;
   }
 
   function renderGoogleSSO() {
@@ -66,7 +70,7 @@ function Header() {
       return (
         <React.Fragment>
           {renderDropdown()}
-          <css.GoogleSSO onClick={() => toggleDropdown(true)}>
+          <css.GoogleSSO onClick={googleSsoClick}>
             <css.GoogleNameEmail>
               <css.GoogleName>{user.display_name}</css.GoogleName>
               <css.GoogleEmail>{user.email}</css.GoogleEmail>
@@ -87,10 +91,10 @@ function Header() {
   return (
     <css.HeaderWrapper>
       <css.DayDistance className="header-distance" />
-      <css.Button onClick={toToday}>{_tr('Today')}</css.Button>
+      <css.ButtonToday onClick={toToday}>{_tr('Today')}</css.ButtonToday>
       {renderGoogleSSO()}
     </css.HeaderWrapper>
   );
 }
 
-export default Header;
+export default observer(Header);

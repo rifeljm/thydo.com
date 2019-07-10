@@ -13,8 +13,8 @@ const slide = keyframes`
 
 css.HeaderWrapper = styled.div`
   position: fixed;
-  padding: 10px 0;
-  height: 50px;
+  padding: 0;
+  height: 51px;
   width: 100%;
   background: #fff;
   box-shadow: 0 0 3px 0 #000;
@@ -23,21 +23,21 @@ css.HeaderWrapper = styled.div`
   top: 0;
 `;
 
-css.Button = styled.a`
+css.ButtonToday = styled.a`
+  margin-top: 10px;
   border-radius: 5px;
-  border: 1px solid #aaa;
   display: inline-block;
   padding: 5px 10px;
   height: 32px;
   cursor: pointer;
   color: #555;
-  box-shadow: 0 0 1px 0 #999;
   margin-right: 15px;
   white-space: nowrap;
   vertical-align: top;
+  background: #eaeaea;
 `;
 
-css.ButtonGoogle = styled(css.Button)`
+css.ButtonGoogle = styled(css.ButtonToday)`
   float: right;
 `;
 
@@ -81,17 +81,23 @@ css.googleSsoText = styled.div`
 
 css.GoogleAvatar = styled.img`
   position: relative;
-  top: -3px;
-  height: 38px;
-  margin-right: 15px;
+  top: 4px;
+  height: 42px;
+  margin-right: 22px;
   border-radius: 50%;
 `;
 
 css.GoogleNameEmail = styled.div`
+  margin-top: 5px;
   text-align: right;
   display: inline-block;
-  margin-right: 15px;
+  margin-right: 12px;
   vertical-align: top;
+  background: #eaeaea;
+  border-radius: 5px;
+  padding: 2px 60px 4px 10px;
+  position: relative;
+  left: 60px;
 `;
 
 css.GoogleName = styled.div`
@@ -101,8 +107,8 @@ css.GoogleName = styled.div`
 `;
 
 css.GoogleEmail = styled.div`
-  font-size: 12px;
-  color: #777;
+  font-size: 13px;
+  color: #666;
 `;
 
 css.accountDropdownModal = styled.div`

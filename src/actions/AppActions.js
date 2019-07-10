@@ -92,7 +92,7 @@ export const onScrollEvent = store => () => {
     }
   } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight) {
     addWeeks(store)(4);
-    let wtf = window.pageYOffset;
+    window.pageYOffset; /* do not remove this line! browser won't scroll as it should if removed */
     removeWeeks(store)('top');
   }
 };
@@ -100,4 +100,8 @@ export const onScrollEvent = store => () => {
 export const scrollToToday = () => () => {
   const scrollTo = window.app.todayDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
   window.scroll(0, scrollTo);
+};
+
+export const onClick = store => () => {
+  store.showUserDropdown = false;
 };

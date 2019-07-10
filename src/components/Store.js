@@ -12,6 +12,7 @@ const createStore = () => {
     highlightObjects: {},
     visibleWeeks: null,
     multiDay: {},
+    showUserDropdown: false,
   };
   return store;
 };

@@ -19,6 +19,7 @@ function App({ id }) {
   React.useEffect(() => {
     window.addEventListener('keydown', actions.keyDownEvent);
     window.addEventListener('scroll', actions.onScrollEvent);
+    window.addEventListener('click', actions.onClick);
   }, []);
 
   React.useEffect(() => {
