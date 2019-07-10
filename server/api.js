@@ -85,6 +85,7 @@ api.sso = async (cookie, user) => {
     sql = `INSERT INTO sessions
                        (cookie, user_id)
                 VALUES ($1, $2)`;
+    await api.createUserTable(cookie);
     await pool.query(sql, [cookie, userId]);
   }
   await pool.query('COMMIT;');
