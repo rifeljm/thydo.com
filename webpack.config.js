@@ -1,4 +1,5 @@
 // var HtmlWebpackPlugin = require('html-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: {
@@ -9,6 +10,7 @@ module.exports = {
     chunkFilename: '[name].js',
     publicPath: '/js',
   },
+  plugins: [new BundleAnalyzerPlugin({ analyzerHost: '0.0.0.0' })],
   // plugins: [
   //   new HtmlWebpackPlugin({
   //     title: 'Thydo calendar',
@@ -18,7 +20,7 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 80,
-    allowedHosts: ['debian', 'thydo'],
+    allowedHosts: ['debian', 'thydo.com', 'dev.thydo.com'],
   },
   optimization: {
     splitChunks: {
@@ -44,5 +46,5 @@ module.exports = {
   resolve: {
     alias: { 'react-dom': '@hot-loader/react-dom' },
   },
-  devtool: 'source-map',
+  // devtool: 'source-map',
 };
