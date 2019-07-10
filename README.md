@@ -23,3 +23,7 @@ GRANT ALL PRIVILEGES ON DATABASE thydo TO thydo;
 ```
 
 Open browser: http://localhost
+
+### Production
+
+http://thydo.com
