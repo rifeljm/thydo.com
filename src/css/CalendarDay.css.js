@@ -19,7 +19,7 @@ const dayBg = props => {
   if (props.highlight) {
     return '#f4f4f4';
   }
-  return '#fdfdfd';
+  return '#fff';
 };
 
 css.Td = styled.div`

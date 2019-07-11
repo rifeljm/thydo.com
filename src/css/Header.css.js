@@ -70,7 +70,6 @@ css.DropdownText = styled.div`
 
 css.GoogleSSO = styled.div`
   display: inline-block;
-  cursor: pointer;
   float: right;
 `;
 
@@ -86,19 +85,21 @@ css.GoogleAvatar = styled.img`
   height: 42px;
   margin-right: 22px;
   border-radius: 50%;
+  cursor: pointer;
 `;
 
 css.GoogleNameEmail = styled.div`
-  margin-top: 6px;
-  text-align: right;
-  display: inline-block;
-  margin-right: 12px;
-  vertical-align: top;
   background: #eaeaea;
   border-radius: 5px;
+  cursor: pointer;
+  display: inline-block;
+  left: 60px;
+  margin-right: 12px;
+  margin-top: 6px;
   padding: 2px 60px 4px 10px;
   position: relative;
-  left: 60px;
+  text-align: right;
+  vertical-align: top;
 `;
 
 css.GoogleName = styled.div`
