@@ -43,8 +43,8 @@ export const paintCalendar = store => () => {
   // const daysSinceMonday = dayInWeek; /* SUNDAY AS FIRST DAY OF THE WEEK */
   const monday = new Date(today.setDate(today.getDate() - daysSinceMonday));
   const weeks = Math.round(window.innerHeight / 334);
-  let dates = addElements(weeks + 4, monday);
-  dates.splice(0, 0, ...addElements(-weeks - 3, monday));
+  let dates = addElements(weeks + 5, monday);
+  dates.splice(0, 0, ...addElements(-weeks + 1, monday));
   store.dates = dates;
   store.visibleWeeks = Object.keys(dates).length / 7;
 };
@@ -77,19 +77,23 @@ export const processInitData = store => allEntries => {
   store.todos = allEntries;
 };
 
+function scrollUp(store) {
+  const offsetBefore = window.pageYOffset;
+  let heightBefore = document.body.scrollHeight;
+  addWeeks(store)(-4);
+  if (window.pageYOffset === 0) {
+    window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
+  }
+  heightBefore = document.body.scrollHeight;
+  removeWeeks(store)('bottom');
+  if (offsetBefore === window.pageYOffset) {
+    window.scrollTo(0, heightBefore - document.body.scrollHeight);
+  }
+}
+
 export const onScrollEvent = store => () => {
   if (window.pageYOffset < 50) {
-    const offsetBefore = window.pageYOffset;
-    let heightBefore = document.body.scrollHeight;
-    addWeeks(store)(-4);
-    if (window.pageYOffset === 0) {
-      window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
-    }
-    heightBefore = document.body.scrollHeight;
-    removeWeeks(store)('bottom');
-    if (offsetBefore === window.pageYOffset) {
-      window.scrollTo(0, heightBefore - document.body.scrollHeight);
-    }
+    scrollUp(store);
   } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight) {
     addWeeks(store)(4);
     window.pageYOffset; /* do not remove this line! browser won't scroll as it should if removed */
@@ -105,3 +109,10 @@ export const scrollToToday = () => () => {
 export const onClick = store => () => {
   store.showUserDropdown = false;
 };
+
+// export const onWheel = store => e => {
+//   console.log('onWheel========>', e, window.pageYOffset);
+//   if (e.wheelDelta > 0 && window.pageYOffset === 0) {
+//     scrollUp(store);
+//   }
+// };

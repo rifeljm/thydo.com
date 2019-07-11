@@ -72,7 +72,7 @@ css.Month = styled.div`
 
 css.TodoList = styled.div`
   font-size: 14px;
-  position: static;
+  position: inherit;
   z-index: 2;
   min-height: 50%;
   > div + div {

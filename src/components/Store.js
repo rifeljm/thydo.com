@@ -13,6 +13,7 @@ const createStore = () => {
     visibleWeeks: null,
     multiDay: {},
     showUserDropdown: false,
+    initialTopDates: false,
   };
   return store;
 };

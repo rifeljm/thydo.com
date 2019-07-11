@@ -13,6 +13,8 @@ import css from '../css/App.css';
 
 history.scrollRestoration = 'manual';
 
+let initialScrollHeight;
+
 function App({ id }) {
   const { store, actions } = useStore();
 
@@ -20,13 +22,23 @@ function App({ id }) {
     window.addEventListener('keydown', actions.keyDownEvent);
     window.addEventListener('scroll', actions.onScrollEvent);
     window.addEventListener('click', actions.onClick);
+    actions.addWeeks(-4); /* useEffect will fix scroll position after weeks render */
+    store.initialTopDates = true;
   }, []);
 
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
     if (toJS(store.toToday)) {
       actions.scrollToToday();
     }
   }, [toJS(store.toToday)]);
+
+  React.useLayoutEffect(() => {
+    /* when adding dates on top of the page for the first time, manually scroll down */
+    if (store.initialTopDates) {
+      window.scroll(0, document.body.scrollHeight - initialScrollHeight);
+    }
+    initialScrollHeight = document.body.scrollHeight;
+  }, [toJS(store.initialTopDates)]);
 
   return (
     <React.Fragment>

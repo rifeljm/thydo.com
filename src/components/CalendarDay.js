@@ -35,9 +35,6 @@ function mouseLeaveTodo() {
   preventClick = false;
 }
 
-/*======================================================================*/
-/* MAIN CLASS
-/*======================================================================*/
 function CalendarDay({ day }) {
   const { store, actions } = useStore();
   const domRef = React.useRef();

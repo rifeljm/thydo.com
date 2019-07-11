@@ -1,5 +1,5 @@
 // var HtmlWebpackPlugin = require('html-webpack-plugin');
-const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: {
@@ -10,7 +10,7 @@ module.exports = {
     chunkFilename: '[name].js',
     publicPath: '/js',
   },
-  plugins: [new BundleAnalyzerPlugin({ analyzerHost: '0.0.0.0' })],
+  // plugins: [new BundleAnalyzerPlugin({ analyzerHost: '0.0.0.0' })],
   // plugins: [
   //   new HtmlWebpackPlugin({
   //     title: 'Thydo calendar',
