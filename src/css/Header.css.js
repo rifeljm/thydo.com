@@ -35,6 +35,7 @@ css.ButtonToday = styled.a`
   white-space: nowrap;
   vertical-align: top;
   background: #eaeaea;
+  line-height: 22px;
 `;
 
 css.ButtonGoogle = styled(css.ButtonToday)`
