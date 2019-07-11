@@ -61,7 +61,7 @@ function Header() {
 
   function googleSsoClick(e) {
     e.stopPropagation();
-    store.showUserDropdown = true;
+    store.showUserDropdown = !store.showUserDropdown;
   }
 
   function renderGoogleSSO() {
@@ -70,12 +70,12 @@ function Header() {
       return (
         <React.Fragment>
           {renderDropdown()}
-          <css.GoogleSSO onClick={googleSsoClick}>
-            <css.GoogleNameEmail>
+          <css.GoogleSSO>
+            <css.GoogleNameEmail onClick={googleSsoClick}>
               <css.GoogleName>{user.display_name}</css.GoogleName>
               <css.GoogleEmail>{user.email}</css.GoogleEmail>
             </css.GoogleNameEmail>
-            <css.GoogleAvatar src={user.avatar} />
+            <css.GoogleAvatar src={user.avatar} onClick={googleSsoClick} />
           </css.GoogleSSO>
         </React.Fragment>
       );
