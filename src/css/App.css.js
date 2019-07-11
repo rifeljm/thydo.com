@@ -21,6 +21,7 @@ css.GlobalStyle = createGlobalStyle`
       display: none;
     }
     user-select: none;
+    background: #fbfbfb;
   }
   input, textarea {
     font-family: ${fontFamily};
