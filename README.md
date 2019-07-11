@@ -8,13 +8,13 @@ Create an empty folder for Postgres data files, edit .env and set PG_DATA_DIR to
 
 For Google SSO to work, you also need to set your google app credentials in .env
 
-Create an empty database
-
 Connect to your postgres server running inside docker
 
 ```
 docker exec -it `docker ps | grep thydo_postgres | awk '{print $1}'` psql -Upostgres
 ```
+
+Create an empty database
 
 ```
 CREATE DATABASE thydo;
@@ -27,3 +27,24 @@ Open browser: http://localhost
 ### Production
 
 http://thydo.com
+
+### Warning !!!
+
+At the moment Thydo only works in Google Chrome browser
+
+### Todo
+
+- settings (locale, first day of the week,...)
+- e2e tests, unit tests
+- time events (meetings?)
+- undo
+- subtasks
+- custom colors
+- history (action log)
+- PWA app (push notifications)
+- integrations: instagram, twitter, google photos,...
+- sharing
+- realtime shopping list (subtasks)
+- pomodoro timer
+- browser compatibility (Firefox, Safari, IE)
+- multiday events drag&drop to change date
