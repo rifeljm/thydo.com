@@ -18,6 +18,7 @@ css.TodoTr = styled.tr`
 `;
 
 css.TodoDashTd = styled.td`
+  line-height: 18px;
   padding: 2px 0 0 3px;
   vertical-align: top;
   border-radius: ${normalRadius} 0 0 ${normalRadius};

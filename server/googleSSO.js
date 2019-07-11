@@ -5,7 +5,7 @@ const g = {};
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect: process.env.NODE_ENV === 'production' ? 'http://thydo.com' : 'http://dev.thydo.com',
+  redirect: process.env.NODE_ENV === 'production' ? 'http://www.thydo.com' : 'http://dev.thydo.com',
 };
 
 const defaultScope = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
