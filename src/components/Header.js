@@ -1,6 +1,4 @@
 import React from 'react';
-import { toJS } from 'mobx';
-import { format } from 'date-fns';
 import { gSvg, cogSvg, signOutSvg } from '../common/utils.js';
 import { observer } from 'mobx-react-lite';
 
@@ -11,17 +9,6 @@ import css from '../css/Header.css';
 
 function Header() {
   const { store, actions } = useStore();
-
-  function toToday() {
-    const isTodayDOM = toJS(store.dates).indexOf(format(new Date(), 'YYYY-MM-DD')) > -1;
-    if (isTodayDOM) {
-      /* if we have DOM for today, just scroll */
-      actions.scrollToToday();
-    } else {
-      /* otherwise, build DOM around today */
-      actions.toToday();
-    }
-  }
 
   function dropdownAction(action) {
     store.showUserDropdown = false;
@@ -91,7 +78,7 @@ function Header() {
   return (
     <css.HeaderWrapper>
       <css.DayDistance className="header-distance" />
-      <css.ButtonToday onClick={toToday}>{_tr('Today')}</css.ButtonToday>
+      <css.ButtonToday onClick={actions.scrollToToday}>{_tr('Today')}</css.ButtonToday>
       {renderGoogleSSO()}
     </css.HeaderWrapper>
   );

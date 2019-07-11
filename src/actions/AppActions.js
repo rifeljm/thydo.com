@@ -49,11 +49,6 @@ export const paintCalendar = store => () => {
   store.visibleWeeks = Object.keys(dates).length / 7;
 };
 
-export const toToday = store => () => {
-  store.toToday = false;
-  paintCalendar(store)();
-};
-
 export const processInitData = store => allEntries => {
   const initMultiDay = {};
   if (allEntries.multiDay) {
@@ -101,18 +96,19 @@ export const onScrollEvent = store => () => {
   }
 };
 
-export const scrollToToday = () => () => {
-  const scrollTo = window.app.todayDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
-  window.scroll(0, scrollTo);
+export const scrollToToday = store => () => {
+  if (window.app.todayDOM) {
+    /* if we have DOM for today, just scroll */
+    const scrollTo = window.app.todayDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
+    window.scroll(0, scrollTo);
+  } else {
+    /* otherwise, build DOM around today */
+    store.toToday = false;
+    window.scroll(0, 0);
+    paintCalendar(store)();
+  }
 };
 
 export const onClick = store => () => {
   store.showUserDropdown = false;
 };
-
-// export const onWheel = store => e => {
-//   console.log('onWheel========>', e, window.pageYOffset);
-//   if (e.wheelDelta > 0 && window.pageYOffset === 0) {
-//     scrollUp(store);
-//   }
-// };

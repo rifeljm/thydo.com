@@ -27,12 +27,6 @@ function App({ id }) {
   }, []);
 
   React.useLayoutEffect(() => {
-    if (toJS(store.toToday)) {
-      actions.scrollToToday();
-    }
-  }, [toJS(store.toToday)]);
-
-  React.useLayoutEffect(() => {
     /* when adding dates on top of the page for the first time, manually scroll down */
     if (store.initialTopDates) {
       window.scroll(0, document.body.scrollHeight - initialScrollHeight);

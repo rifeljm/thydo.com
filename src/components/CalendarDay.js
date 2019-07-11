@@ -48,6 +48,9 @@ function CalendarDay({ day }) {
       window.app.todayDOM = domRef.current;
       store.toToday = true;
     }
+    return () => {
+      window.app.todayDOM = null;
+    };
   }, []);
 
   React.useEffect(() => {
