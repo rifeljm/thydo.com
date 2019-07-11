@@ -35,6 +35,7 @@ css.ButtonToday = styled.a`
   white-space: nowrap;
   vertical-align: top;
   background: #eaeaea;
+  line-height: 22px;
 `;
 
 css.ButtonGoogle = styled(css.ButtonToday)`
@@ -88,7 +89,7 @@ css.GoogleAvatar = styled.img`
 `;
 
 css.GoogleNameEmail = styled.div`
-  margin-top: 5px;
+  margin-top: 6px;
   text-align: right;
   display: inline-block;
   margin-right: 12px;
