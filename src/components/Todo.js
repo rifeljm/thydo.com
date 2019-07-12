@@ -8,6 +8,8 @@ import { useStore } from './Store.js';
 
 import css from '../css/Todo.css';
 
+import { descriptionSvg } from '../common/utils.js';
+
 Todo.propTypes = {
   idx: PropTypes.number.isRequired,
   todo: PropTypes.object.isRequired,
@@ -100,8 +102,17 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     e.stopPropagation();
   }
 
+  function renderDescriptionIcon(todo) {
+    return todo.d ? <css.DecriptionIcon dangerouslySetInnerHTML={{ __html: descriptionSvg }} /> : null;
+  }
+
   function renderTextOrInput() {
-    let textOrInput = todo.title;
+    let textOrInput = (
+      <React.Fragment>
+        {todo.t}
+        {renderDescriptionIcon(todo)}
+      </React.Fragment>
+    );
     if (todo.id === -1) {
       textOrInput = (
         <css.TodoTextarea

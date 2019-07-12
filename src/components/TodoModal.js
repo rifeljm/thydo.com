@@ -3,25 +3,78 @@ import PropTypes from 'prop-types';
 import { navigate } from '@reach/router';
 import autosize from 'autosize';
 
-import { trashSvg, checkSvg } from '../common/utils.js';
+import { trashSvg, checkSvg, descriptionSvg } from '../common/utils.js';
 import { useStore } from './Store.js';
 import Button from './Button.js';
+import { _tr } from '../common/utils.js';
 
 import css from '../css/TodoModal.css';
 
 function TodoModal({ id }) {
   const { actions } = useStore();
+  const modalRef = React.useRef();
   const textareaRef = React.useRef();
+  const descRef = React.useRef();
   const todo = actions.getTodoData(id);
-  let [title, changeTitle] = React.useState(todo.title);
-  const colorIdx = parseInt(todo.day.substring(5, 7), 10) - 1;
+  let [title, changeTitle] = React.useState(todo.t);
+  let [description, setDescription] = React.useState(todo.d);
+  let [modalHeight, setModalHeight] = React.useState();
 
   React.useEffect(() => {
     autosize(textareaRef.current);
+    autosize(descRef.current);
+    setModalHeight(modalRef.current.getBoundingClientRect().height);
   }, []);
+
+  if (!todo.id) {
+    navigate('/');
+    return null;
+  }
+
+  const colorIdx = parseInt(todo.day.substring(5, 7), 10) - 1;
+  const active = todo.t !== title || (todo.d !== description && description !== '') || (todo.d && description === '');
 
   function onOverlayClick() {
     navigate('/');
+  }
+
+  function onTitleKeyDown(e) {
+    if (e.keyCode === 27) {
+      changeTitle(todo.t);
+      textareaRef.current.blur();
+      e.stopPropagation();
+    }
+
+    if (e.keyCode === 13) {
+      e.stopPropagation();
+      if (!e.shiftKey) {
+        e.preventDefault();
+        saveModal();
+      }
+    }
+  }
+
+  function onDescriptionKeydown(e) {
+    if (e.keyCode === 13) {
+      e.stopPropagation();
+    }
+  }
+
+  function onDescriptionBlur(e) {
+    if (e.target.value === '') {
+      setDescription(undefined);
+    }
+  }
+
+  function addDescription() {
+    setDescription('');
+    setTimeout(() => {
+      descRef.current.focus();
+    }, 0);
+  }
+
+  function saveModal() {
+    actions.saveModal({ id, title, active, description });
   }
 
   function renderTitle() {
@@ -32,36 +85,43 @@ function TodoModal({ id }) {
         autoCapitalize="off"
         spellCheck="false"
         ref={textareaRef}
-        onKeyDown={onKeyDown}
         onChange={e => changeTitle(e.target.value)}
         value={title}
         done={todo.f}
+        onKeyDown={onTitleKeyDown}
       />
     );
   }
 
-  function onKeyDown(e) {
-    if (e.keyCode === 27) {
-      changeTitle(todo.title);
-      textareaRef.current.blur();
-      e.stopPropagation();
-    }
-
-    if (e.keyCode === 13) {
-      e.stopPropagation();
-      if (!e.shiftKey) {
-        e.preventDefault();
-        actions.saveModal({ id, title, active });
-      }
-    }
+  function renderDescriptionTextarea() {
+    return (
+      <css.DescriptionTextarea
+        onKeyDown={onDescriptionKeydown}
+        ref={descRef}
+        show={description !== undefined}
+        onChange={e => setDescription(e.target.value)}
+        value={description}
+        onBlur={onDescriptionBlur}
+      />
+    );
   }
 
-  const active = todo.title !== title;
+  function renderDescription() {
+    return (
+      <React.Fragment>
+        {renderDescriptionTextarea()}
+        <css.AddDescription onClick={addDescription} show={description === undefined}>
+          <css.PencilSvg dangerouslySetInnerHTML={{ __html: descriptionSvg }} />
+          <css.AddDescriptionText>{_tr('Add description')}</css.AddDescriptionText>
+        </css.AddDescription>
+      </React.Fragment>
+    );
+  }
 
   return (
     <React.Fragment>
       <css.Overlay onClick={onOverlayClick} />
-      <css.Modal>
+      <css.Modal ref={modalRef} modalHeight={modalHeight}>
         <css.Form>
           <css.Table>
             <css.TitleCell>{renderTitle()}</css.TitleCell>
@@ -69,10 +129,11 @@ function TodoModal({ id }) {
               <css.SVG onClick={() => actions.deleteTodo(todo)} dangerouslySetInnerHTML={{ __html: trashSvg }} />
             </css.Cell>
           </css.Table>
+          {renderDescription()}
         </css.Form>
         <css.Bottom>
           {0 && !todo.to && !todo.f ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
-          <Button onClick={() => actions.saveModal({ id, title, active })} active={active} title="Save" float="right" colorIdx={colorIdx} />
+          <Button onClick={saveModal} active={active} title="Save" float="right" colorIdx={colorIdx} />
         </css.Bottom>
       </css.Modal>
     </React.Fragment>

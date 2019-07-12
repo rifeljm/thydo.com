@@ -6,8 +6,8 @@ exports.saveMultiDay = store => () => {
   const multiTodo = {
     from: window.app.highlightStartDay,
     to: window.app.highlightEndDay,
-    title: store.multiDay[window.app.highlightStartDay].reduce((prev, todo) => {
-      return todo.id === -1 ? todo.title : prev;
+    t: store.multiDay[window.app.highlightStartDay].reduce((prev, todo) => {
+      return todo.id === -1 ? todo.t : prev;
     }, ''),
   };
   axios.post('/api/todo', multiTodo).then(response => {

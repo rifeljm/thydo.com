@@ -22,7 +22,7 @@ function MultiDayEvent({ event, day }) {
   }
   return (
     <css.multiDay onClick={onClick} key={event.id} colorIdx={getMonth(day)}>
-      {textarea || <css.eventTitle>{event.title || ' '}</css.eventTitle>}
+      {textarea || <css.eventTitle>{event.t || ' '}</css.eventTitle>}
     </css.multiDay>
   );
 }

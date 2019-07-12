@@ -104,7 +104,7 @@ exports.showMultiDayInput = store => day => {
     .map(idx => format(addDays(startDay, idx), 'YYYY-MM-DD'))
     .forEach(day => {
       let multiDayArray = store.multiDay[day] || [];
-      multiDayArray.splice(0, 0, { id: -1, title: '' });
+      multiDayArray.splice(0, 0, { id: -1, t: '' });
       store.multiDay[day] = multiDayArray;
     });
   window.app.multiDayStart = startDay;

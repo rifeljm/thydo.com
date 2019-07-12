@@ -8,6 +8,7 @@ import { useStore } from './Store.js';
 import Header from './Header.js';
 import Weeks from './Weeks.js';
 import TodoModal from './TodoModal.js';
+import { _tr } from '../common/utils.js';
 
 import css from '../css/App.css';
 
