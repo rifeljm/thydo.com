@@ -65,7 +65,7 @@ export const processInitData = store => allEntries => {
   }
   window.app.googleSSO = allEntries.googleSSO;
   delete allEntries.googleSSO;
-  if (allEntries.user) {
+  if (allEntries.user !== undefined) {
     window.app.user = allEntries.user;
     delete allEntries.user;
   }
