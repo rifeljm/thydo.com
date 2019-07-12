@@ -43,6 +43,7 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     let value = todoInputRef.current.value;
     if (evt.keyCode === 27) {
       evt.preventDefault();
+      mouseLeaveTodo();
       actions.cancelTodo(day);
     }
     if (evt.keyCode === 13 && !evt.shiftKey) {
@@ -149,8 +150,8 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
       onMouseDown={onMouseDown}
       onMouseUp={onMouseUp}
       onClick={onClick}
-      onMouseEnter={() => mouseEnterTodo(idx)}
-      onMouseLeave={() => mouseLeaveTodo(idx)}
+      onMouseEnter={mouseEnterTodo}
+      onMouseLeave={mouseLeaveTodo}
     >
       <tbody>
         <css.TodoTr>
