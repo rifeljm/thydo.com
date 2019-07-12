@@ -14,6 +14,7 @@ api.createTables = async () => {
     lang text,
     cookie text,
     tokens jsonb,
+    settings jsonb,
     google_id text,
     creation_time timestamp without time zone,
     "time" timestamp without time zone default now(),
