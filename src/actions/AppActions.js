@@ -43,10 +43,10 @@ export const paintCalendar = store => () => {
   // const daysSinceMonday = dayInWeek; /* SUNDAY AS FIRST DAY OF THE WEEK */
   const monday = new Date(today.setDate(today.getDate() - daysSinceMonday));
   const weeks = Math.round(window.innerHeight / 334);
-  let dates = addElements(weeks + 5, monday);
+  let dates = addElements(weeks + 4, monday);
   dates.splice(0, 0, ...addElements(-weeks + 1, monday));
   store.dates = dates;
-  store.visibleWeeks = Object.keys(dates).length / 7;
+  store.visibleWeeks = Object.keys(dates).length / 7 + 4;
 };
 
 export const processInitData = store => allEntries => {
