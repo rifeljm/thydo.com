@@ -64,4 +64,18 @@ css.MultipleTextarea = styled(css.TodoTextarea)`
   color: #fff;
 `;
 
+css.DecriptionIcon = styled.span`
+  margin-left: 3px;
+  svg {
+    width: 11px;
+    height: 11px;
+    position: relative;
+    top: 1px;
+    path {
+      fill: #666;
+    }
+  }
+`;
+
 export default css;
+

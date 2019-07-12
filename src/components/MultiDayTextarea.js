@@ -23,7 +23,7 @@ export default function MultiDayTextarea() {
     fromToDays(min, max).forEach(day => {
       if (Array.isArray(toJS(store.multiDay)[day]) && toJS(store.multiDay)[day].length) {
         let tempDay = toJS(store.multiDay)[day].map(event => {
-          return event.id === -1 ? { ...event, title: value } : event;
+          return event.id === -1 ? { ...event, t: value } : event;
         });
         store.multiDay[day] = tempDay;
       }

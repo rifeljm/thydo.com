@@ -10,11 +10,11 @@ exports.saveTodo = store => (day, title, options = {}) => {
   const nextMinId = Math.min.apply(Math, todos.map(todo => todo.id)) - 1;
 
   store.todos[day] = todos.filter(todo => todo.id !== -1);
-  store.todos[day].push({ id: nextMinId, title });
+  store.todos[day].push({ id: nextMinId, t: title });
   if (options.createNew) {
     store.todos[day].push({ id: -1 });
   }
-  axios.post('/api/todo', { day, title }).then(response => {
+  axios.post('/api/todo', { day, t: title }).then(response => {
     if (response.status === 200) {
       store.todos[day] = store.todos[day].map(todo => {
         const id = todo.id === nextMinId ? response.data.id : todo.id;

@@ -50,17 +50,19 @@ export const deleteTodo = store => todo => {
   });
 };
 
-export const saveModal = store => ({ id, title, active }) => {
+export const saveModal = store => ({ id, title, active, description }) => {
   const oldTodo = getTodoData(store)(id);
   const day = oldTodo.day;
   if (active) {
     const todo = {
-      title,
+      t: title,
+      d: description,
     };
     axios.put('/api/todo/', { id, todo }).then(response => {
       const { id, todo } = response.data;
       const newTodo = {
-        title: todo.title,
+        t: todo.t,
+        d: todo.d,
       };
       if (oldTodo.to) {
         fromToDays(oldTodo.from, oldTodo.to).forEach(day => {
