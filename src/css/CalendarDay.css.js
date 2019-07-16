@@ -41,6 +41,7 @@ css.emptyTd = styled.div`
 `;
 
 css.BottomRightDay = styled.div`
+  font-family: Dosis;
   position: absolute;
   bottom: -3px;
   right: 5px;
@@ -49,6 +50,7 @@ css.BottomRightDay = styled.div`
 `;
 
 css.DayOfWeek = styled.div`
+  font-family: Dosis;
   position: absolute;
   top: -30px;
   border: 0;
@@ -59,9 +61,10 @@ css.DayOfWeek = styled.div`
 `;
 
 css.Month = styled.div`
+  font-family: Dosis;
   position: absolute;
-  top: -123px;
-  font-size: 50px;
+  top: -115px;
+  font-size: 45px;
   white-space: nowrap;
   color: #fff;
   left: -2px;

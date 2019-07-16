@@ -94,6 +94,7 @@ css.GoogleNameEmail = styled.div`
   cursor: pointer;
   display: inline-block;
   left: 60px;
+  line-height: 16px;
   margin-right: 12px;
   margin-top: 6px;
   padding: 2px 60px 4px 10px;
