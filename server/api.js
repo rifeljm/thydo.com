@@ -46,7 +46,6 @@ api.createUserTable = async id => {
                                        todos int[],
                                        trash bool);`;
   await pool.query(sql);
-  await pool.query('COMMIT');
   return true;
 };
 
@@ -66,6 +65,12 @@ api.sso = async (cookie, user) => {
            RETURNING id
     `;
     result = await pool.query(sql, [user.googleId, user.email, user.displayName, user.avatar, user.lang, user.tokens, cookie]);
+
+    const schemaExists = await api.schemaExists(cookie);
+    if (!schemaExists) {
+      await api.createUserTable(cookie);
+    }
+
     if (result && result.rows && result.rows.length) {
       sql = `ALTER SCHEMA "${cookie}" RENAME TO "${user.email}"`;
       await pool.query(sql);
