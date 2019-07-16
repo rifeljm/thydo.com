@@ -86,6 +86,7 @@ app.post('/api/todo', api.authenticateMiddleware, api.postTodo);
 app.put('/api/sort-day', api.authenticateMiddleware, api.putSortDay);
 app.delete('/api/todo', api.authenticateMiddleware, api.deleteTodo);
 app.put('/api/todo', api.authenticateMiddleware, api.putTodo);
+app.put('/api/settings', api.authenticateMiddleware, api.putSettings);
 
 const auth = google.createConnection();
 const url = google.getConnectionUrl(auth);

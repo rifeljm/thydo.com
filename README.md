@@ -34,17 +34,15 @@ At the moment Thydo only works in Google Chrome browser
 
 ### Todo
 
-- settings (locale, first day of the week,...)
 - e2e tests, unit tests
 - time events (meetings?)
 - undo
-- subtasks
+- lists (subtodos, shopping list,...) inside modal
 - custom colors
 - history (action log)
 - PWA app (push notifications)
 - integrations: instagram, twitter, google photos,...
 - sharing
-- realtime shopping list (subtasks)
 - pomodoro timer
 - browser compatibility (Firefox, Safari, IE)
-- multiday events drag&drop to change date
+- multiday mouse events to change or move date

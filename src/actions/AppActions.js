@@ -1,20 +1,26 @@
-import { addDays, format } from 'date-fns';
 import { toJS } from 'mobx';
+import axios from 'axios';
+import dayjs from 'dayjs';
+
 import { fromToDays } from '../common/utils.js';
 
 const dayHeight = 156;
 
 const addElements = (weekCount, day) => {
   if (weekCount < 0) {
-    day = addDays(day, weekCount * 7);
+    day = dayjs(day).add(weekCount * 7, 'day');
   }
-  return [...Array(Math.abs(weekCount) * 7).keys()].map(idx => format(addDays(day, idx), 'YYYY-MM-DD'));
+  return [...Array(Math.abs(weekCount) * 7).keys()].map(idx =>
+    dayjs(day)
+      .add(idx, 'days')
+      .format('YYYY-MM-DD')
+  );
 };
 
 const getMondayFromDates = (weekCount, dates) => {
   const firstDay = dates[0];
   const lastDay = dates[dates.length - 1];
-  return weekCount > 0 ? addDays(lastDay, 1) : firstDay;
+  return weekCount > 0 ? dayjs(lastDay).add(1, 'day') : firstDay;
 };
 
 export const removeWeeks = store => where => {
@@ -38,9 +44,8 @@ export const addWeeks = store => weekCount => {
 
 export const paintCalendar = store => () => {
   const today = new Date();
-  const dayInWeek = today.getDay();
-  const daysSinceMonday = (dayInWeek + 6) % 7;
-  // const daysSinceMonday = dayInWeek; /* SUNDAY AS FIRST DAY OF THE WEEK */
+  const dayInWeek = dayjs(today).day();
+  const daysSinceMonday = toJS(store.settings).firstDayInWeek === 'sunday' ? dayInWeek : (dayInWeek + 6) % 7;
   const monday = new Date(today.setDate(today.getDate() - daysSinceMonday));
   const weeks = Math.round(window.innerHeight / 334);
   let dates = addElements(weeks + 4, monday);
@@ -67,6 +72,8 @@ export const processInitData = store => allEntries => {
   delete allEntries.googleSSO;
   if (allEntries.user !== undefined) {
     window.app.user = allEntries.user;
+    store.settings = allEntries.user.settings;
+    dayjs.locale(allEntries.user.settings.language);
     delete allEntries.user;
   }
   store.todos = allEntries;
@@ -96,8 +103,8 @@ export const onScrollEvent = store => () => {
   }
 };
 
-export const scrollToToday = store => () => {
-  if (window.app.todayDOM) {
+export const scrollToToday = store => force => {
+  if (window.app.todayDOM && !force) {
     /* if we have DOM for today, just scroll */
     const scrollTo = window.app.todayDOM.getBoundingClientRect().top - window.innerHeight / 2 + window.pageYOffset + dayHeight / 2;
     window.scroll(0, scrollTo);
@@ -111,4 +118,15 @@ export const scrollToToday = store => () => {
 
 export const onClick = store => () => {
   store.showUserDropdown = false;
+};
+
+export const saveSettings = store => settings => {
+  store.settings.language = settings.language.value;
+  store.settings.firstDayInWeek = settings.firstDayInWeek === 0 ? 'sunday' : 'monday';
+  store.showSettingsModal = false;
+  dayjs.locale(settings.language.value);
+  scrollToToday(store)(true);
+  axios.put('/api/settings', { settings: store.settings }).then(() => {
+    /* todo: implement response actions */
+  });
 };
