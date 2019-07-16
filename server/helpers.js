@@ -17,7 +17,8 @@ exports.indexHTML = json => {
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Thydo calendar</title>
-    <link href="https://fonts.googleapis.com/css?family=Lato&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Dosis:500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?id=12"/>
     <script type="application/json" id="todos_data">${json}</script>
   </head>

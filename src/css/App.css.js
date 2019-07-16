@@ -2,8 +2,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const css = {};
 
-const fontFamily = 'sans-serif';
-// const fontFamily = `'Lato', sans-serif`;
+const fontFamily = `'Roboto', sans-serif`;
 
 css.GlobalStyle = createGlobalStyle`
   * {

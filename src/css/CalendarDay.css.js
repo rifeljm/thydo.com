@@ -41,14 +41,16 @@ css.emptyTd = styled.div`
 `;
 
 css.BottomRightDay = styled.div`
+  font-family: Dosis;
   position: absolute;
-  bottom: -3px;
-  right: 5px;
-  font-size: 80px;
+  bottom: -6px;
+  right: 8px;
+  font-size: 68px;
   color: ${props => (props.isToday ? '#fff' : rgba([0, 6].indexOf(props.dayInWeekIdx) > -1 ? '#bbb' : monthColors[props.monthIdx], 0.25))};
 `;
 
 css.DayOfWeek = styled.div`
+  font-family: Dosis;
   position: absolute;
   top: -30px;
   border: 0;
@@ -59,9 +61,10 @@ css.DayOfWeek = styled.div`
 `;
 
 css.Month = styled.div`
+  font-family: Dosis;
   position: absolute;
-  top: -123px;
-  font-size: 50px;
+  top: -115px;
+  font-size: 45px;
   white-space: nowrap;
   color: #fff;
   left: -2px;
