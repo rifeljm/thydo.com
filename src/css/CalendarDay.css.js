@@ -43,9 +43,9 @@ css.emptyTd = styled.div`
 css.BottomRightDay = styled.div`
   font-family: Dosis;
   position: absolute;
-  bottom: -3px;
-  right: 5px;
-  font-size: 80px;
+  bottom: -6px;
+  right: 8px;
+  font-size: 68px;
   color: ${props => (props.isToday ? '#fff' : rgba([0, 6].indexOf(props.dayInWeekIdx) > -1 ? '#bbb' : monthColors[props.monthIdx], 0.25))};
 `;
 
