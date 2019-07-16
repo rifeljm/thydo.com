@@ -12,18 +12,15 @@ import css from '../css/TodoModal.css';
 
 function TodoModal({ id }) {
   const { actions } = useStore();
-  const modalRef = React.useRef();
   const textareaRef = React.useRef();
   const descRef = React.useRef();
   const todo = actions.getTodoData(id);
   let [title, changeTitle] = React.useState(todo.t);
   let [description, setDescription] = React.useState(todo.d);
-  let [modalHeight, setModalHeight] = React.useState();
 
   React.useEffect(() => {
     autosize(textareaRef.current);
     autosize(descRef.current);
-    setModalHeight(modalRef.current.getBoundingClientRect().height);
   }, []);
 
   if (!todo.id) {
@@ -119,9 +116,9 @@ function TodoModal({ id }) {
   }
 
   return (
-    <React.Fragment>
+    <css.Modal>
       <css.Overlay onClick={onOverlayClick} />
-      <css.Modal ref={modalRef} modalHeight={modalHeight}>
+      <css.TodoModal>
         <css.Form>
           <css.Table>
             <css.TitleCell>{renderTitle()}</css.TitleCell>
@@ -131,12 +128,12 @@ function TodoModal({ id }) {
           </css.Table>
           {renderDescription()}
         </css.Form>
-        <css.Bottom>
+        <css.ModalActions>
           {0 && !todo.to && !todo.f ? <Button active svg={checkSvg} title="Done" colorIdx={colorIdx} /> : null}
           <Button onClick={saveModal} active={active} title="Save" float="right" colorIdx={colorIdx} />
-        </css.Bottom>
-      </css.Modal>
-    </React.Fragment>
+        </css.ModalActions>
+      </css.TodoModal>
+    </css.Modal>
   );
 }
 

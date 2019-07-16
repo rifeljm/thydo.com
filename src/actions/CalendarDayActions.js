@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toJS } from 'mobx';
-import { format, differenceInCalendarDays, addDays } from 'date-fns';
 import { navigate } from '@reach/router';
+import dayjs from 'dayjs';
 
 /**
  * find editing todo in the store and cancel it
@@ -99,9 +99,13 @@ exports.handleOnSort = store => (evt, day, dom) => {
 
 exports.showMultiDayInput = store => day => {
   const [startDay, endDay] = [day, window.app.highlightStartDay].sort();
-  const diff = differenceInCalendarDays(endDay, startDay);
+  const diff = dayjs(endDay).diff(dayjs(startDay), 'day');
   [...Array(diff + 1).keys()]
-    .map(idx => format(addDays(startDay, idx), 'YYYY-MM-DD'))
+    .map(idx =>
+      dayjs(startDay)
+        .add(idx, 'day')
+        .format('YYYY-MM-DD')
+    )
     .forEach(day => {
       let multiDayArray = store.multiDay[day] || [];
       multiDayArray.splice(0, 0, { id: -1, t: '' });
@@ -114,8 +118,11 @@ export const keyDownEvent = store => e => {
   if (e.keyCode === 27 && window.location.pathname.length > 1) {
     navigate('/');
   }
-  if (e.keyCode === 13 && !e.shiftKey) {
-    const today = format(new Date(), 'YYYY-MM-DD');
+  if (e.keyCode === 27 && store.showSettingsModal) {
+    store.showSettingsModal = false;
+  }
+  if (e.keyCode === 13 && !e.shiftKey && !store.showSettingsModal) {
+    const today = dayjs().format('YYYY-MM-DD');
     showNewTodoInput(store)(e, today);
     e.preventDefault();
   }

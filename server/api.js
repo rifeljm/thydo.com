@@ -14,6 +14,7 @@ api.createTables = async () => {
     lang text,
     cookie text,
     tokens jsonb,
+    settings jsonb,
     google_id text,
     creation_time timestamp without time zone,
     "time" timestamp without time zone default now(),
@@ -24,7 +25,7 @@ api.createTables = async () => {
     id serial NOT NULL,
     cookie text,
     user_id integer,
-    "time" timestamp without time zone,
+    "time" timestamp without time zone default NOW(),
     primary key(id))`;
   await pool.query(sql);
 };
@@ -95,7 +96,8 @@ api.getSchemaForCookie = async schema => {
   let sql = `SELECT u.email,
                     u.display_name,
                     u.avatar,
-                    u.lang
+                    u.lang,
+                    u.settings
                FROM sessions s,
                     users u
               WHERE s.user_id = u.id
@@ -116,6 +118,7 @@ api.authenticateMiddleware = async (req, res, next) => {
   const user = await api.getSchemaForCookie(req.cookies.thydo_user);
   if (user) {
     res.locals.schema = user.email;
+    res.locals.user = user;
   } else {
     sql = `SELECT id,
                     cookie,
@@ -345,6 +348,14 @@ api.putTodo = async (req, res) => {
     await pool.query(sql, [Object.assign(todo, req.body.todo), req.body.id]);
   }
   await pool.query('COMMIT');
+  res.send(req.body);
+};
+
+api.putSettings = async (req, res) => {
+  let sql = `UPDATE users
+                SET settings = $1
+              WHERE email = $2`;
+  await pool.query(sql, [req.body.settings, res.locals.user.email]);
   res.send(req.body);
 };
 

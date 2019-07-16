@@ -1,14 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { getDay, getMonth, format, differenceInCalendarDays, addDays } from 'date-fns';
-import locale from 'date-fns/locale/en';
 import Sortable from 'sortablejs';
 import { observer } from 'mobx-react-lite';
 import { toJS } from 'mobx';
+import dayjs from 'dayjs';
 
 import { useStore } from './Store.js';
 import Todo from './Todo.js';
-import { _tr, upFirst } from '../common/utils.js';
+import { upFirst } from '../common/utils.js';
 import MultiDayEvent from './MultiDayEvent.js';
 
 import css from '../css/CalendarDay.css';
@@ -16,15 +15,15 @@ import css from '../css/CalendarDay.css';
 let preventClick = false;
 
 function isToday(day) {
-  return day === format(new Date(), 'YYYY-MM-DD');
+  return day === dayjs().format('YYYY-MM-DD');
 }
 
 function isThisMonth(day) {
-  return day.substring(0, 7) === format(new Date(), 'YYYY-MM');
+  return day.substring(0, 7) === dayjs().format('YYYY-MM');
 }
 
 function isThisDayInWeek(day) {
-  return getDay(new Date()) === getDay(day);
+  return dayjs(new Date()).day() === dayjs(day).day();
 }
 
 function mouseEnterTodo() {
@@ -101,8 +100,12 @@ function CalendarDay({ day }) {
     if (window.app.highlightStartDay && !window.app.highlightEndDay) {
       if (action === 'mouseEnter') {
         const [min, max] = [window.app.highlightStartDay, day].sort();
-        [...Array(differenceInCalendarDays(max, min) + 1).keys()].reduce((prev, idx) => {
-          store.highlightObjects[format(addDays(min, idx), 'YYYY-MM-DD')] = true;
+        [...Array(dayjs(max).diff(dayjs(min), 'day') + 1).keys()].reduce((prev, idx) => {
+          store.highlightObjects[
+            dayjs(min)
+              .add(idx, 'day')
+              .format('YYYY-MM-DD')
+          ] = true;
         }, {});
       }
       if (action === 'mouseLeave' && !window.app.highlightEndDay) {
@@ -125,28 +128,28 @@ function CalendarDay({ day }) {
     let monthFormat = 'MMMM YYYY';
     if (parseInt(day.substring(8), 10) > 6) monthFormat = 'MMM YY';
     return (
-      <css.Month onClick={onMonthNameClick} colorIdx={getMonth(day)}>
-        {upFirst(format(day, monthFormat, { locale }))}
+      <css.Month onClick={onMonthNameClick} colorIdx={dayjs(day).month()}>
+        {upFirst(dayjs(day).format(monthFormat))}
       </css.Month>
     );
   }
 
   function renderMonth(day) {
-    if (getDay(day) === 1 && parseInt(day.substring(8), 10) < 8) {
+    if (dayjs(day).day() === (toJS(store.settings).firstDayInWeek === 'sunday' ? 0 : 1) && parseInt(day.substring(8), 10) < 8) {
       return renderMonthName(day);
     }
   }
 
-  function renderDayDistance(day) {
-    const diff = differenceInCalendarDays(day, format(new Date(), 'YYYY-MM-DD'));
-    let text;
-    if (diff === 0) text = _tr('Today');
-    if (diff === 1) text = _tr('Tomorrow');
-    if (diff === -1) text = _tr('Yesterday');
-    if (diff < -1) text = `${Math.abs(diff)} ${_tr('days ago')}`;
-    if (diff > 1) text = `${diff} ${_tr('days away')}`;
-    return text;
-  }
+  // function renderDayDistance(day) {
+  //   const diff = differenceInCalendarDays(day, formatLocale(new Date(), 'yyyy-MM-dd'));
+  //   let text;
+  //   if (diff === 0) text = _tr('Today');
+  //   if (diff === 1) text = _tr('Tomorrow');
+  //   if (diff === -1) text = _tr('Yesterday');
+  //   if (diff < -1) text = `${Math.abs(diff)} ${_tr('days ago')}`;
+  //   if (diff > 1) text = `${diff} ${_tr('days away')}`;
+  //   return text;
+  // }
 
   function renderTodoList() {
     /* We need this element rendered (css.TodoList) even if there are no todos, sortablejs will use it as an empty placeholder! */
@@ -168,8 +171,9 @@ function CalendarDay({ day }) {
   function renderDayOfWeek() {
     if (parseInt(day.substring(8), 10) > 7) return null;
     return (
-      <css.DayOfWeek onClick={onWeekdayNameClick} isDayOfWeekInColor={isDayOfWeekInColor} colorIdx={getMonth(day)}>
-        {format(day, 'dddd', { locale })}
+      <css.DayOfWeek onClick={onWeekdayNameClick} isDayOfWeekInColor={isDayOfWeekInColor} colorIdx={dayjs(day).month()}>
+        {dayjs(day).format('dddd')}
+        {/*store.dayNames[dayjs(day).day()] */}
       </css.DayOfWeek>
     );
   }
@@ -187,8 +191,8 @@ function CalendarDay({ day }) {
   return (
     <css.Td
       isToday={isTodayBool}
-      colorIdx={getMonth(day)}
-      dayWeekIdx={getDay(day)}
+      colorIdx={dayjs(day).month()}
+      dayWeekIdx={dayjs(day).day()}
       ref={domRef}
       onMouseEnter={() => mouseAction({ action: 'mouseEnter', day: day })}
       onMouseLeave={() => mouseAction({ action: 'mouseLeave', day: day })}
@@ -199,7 +203,7 @@ function CalendarDay({ day }) {
       {renderMultiDayEvents()}
       {renderTodoList()}
       {renderMonth(day)}
-      <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={getDay(day)} monthIdx={getMonth(day)}>
+      <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={dayjs(day).day()} monthIdx={dayjs(day).month()}>
         {day.substring(8).replace(/^0/, '')}
       </css.BottomRightDay>
     </css.Td>

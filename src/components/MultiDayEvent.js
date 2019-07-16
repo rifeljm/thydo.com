@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { observer } from 'mobx-react-lite';
 import { navigate } from '@reach/router';
-import { getMonth } from 'date-fns';
+import dayjs from 'dayjs';
 
 import MultiDayTextarea from './MultiDayTextarea.js';
 
@@ -21,7 +21,7 @@ function MultiDayEvent({ event, day }) {
     textarea = <MultiDayTextarea key={event.id} />;
   }
   return (
-    <css.multiDay onClick={onClick} key={event.id} colorIdx={getMonth(day)}>
+    <css.multiDay onClick={onClick} key={event.id} colorIdx={dayjs(day).month()}>
       {textarea || <css.eventTitle>{event.t || ' '}</css.eventTitle>}
     </css.multiDay>
   );

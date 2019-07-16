@@ -16,6 +16,9 @@ function Header() {
       document.cookie = 'thydo_user=; expires=-999999999';
       document.location = '/';
     }
+    if (action === 'settings') {
+      store.showSettingsModal = true;
+    }
   }
 
   function renderActions() {

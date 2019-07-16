@@ -5,19 +5,19 @@ import { monthColors } from '../common/utils.js';
 const css = {};
 
 function bgColor(colorIdx, active) {
-  if (!colorIdx) return 'initial';
+  if (!colorIdx) return '#777';
   return active ? setLightness(0.64, monthColors[colorIdx]) : '#eee';
 }
 
 function hoverColor(colorIdx, active) {
-  if (!colorIdx) return 'initial';
+  if (!colorIdx) return '#888';
   return active ? setLightness(0.68, monthColors[colorIdx]) : '#eee';
 }
 
 css.Button = styled.div`
   text-align: center;
   min-width: 100px;
-  margin: 0 15px;
+  margin: 0;
   float: ${props => (props.float ? props.float : 'initial')};
   display: inline-block;
   background-color: ${props => bgColor(props.colorIdx, props.active)};
