@@ -73,7 +73,7 @@ export const processInitData = store => allEntries => {
   if (allEntries.user !== undefined) {
     window.app.user = allEntries.user;
     store.settings = allEntries.user.settings;
-    dayjs.locale(allEntries.user.settings.language);
+    dayjs.locale(allEntries.user.settings.language || 'en');
     delete allEntries.user;
   }
   store.todos = allEntries;
