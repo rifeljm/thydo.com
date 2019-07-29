@@ -5,6 +5,8 @@ const css = {};
 const fontFamily = `'Roboto', sans-serif`;
 
 css.GlobalStyle = createGlobalStyle`
+  @import url('https://fonts.googleapis.com/css?family=Dosis:500');
+  @import url('https://fonts.googleapis.com/css?family=Roboto');
   * {
       -moz-box-sizing: border-box;
       -webkit-box-sizing: border-box;
