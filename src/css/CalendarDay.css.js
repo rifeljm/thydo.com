@@ -41,7 +41,6 @@ css.emptyTd = styled.div`
 `;
 
 css.BottomRightDay = styled.div`
-  font-family: Dosis;
   position: absolute;
   bottom: -6px;
   right: 8px;

@@ -22,6 +22,9 @@ css.GlobalStyle = createGlobalStyle`
     user-select: none;
     background: #fbfbfb;
   }
+  .bottom-right-day {
+    font-family: Dosis;
+  }
   input, textarea {
     font-family: ${fontFamily};
     font-weight: 400;

@@ -203,7 +203,7 @@ function CalendarDay({ day }) {
       {renderMultiDayEvents()}
       {renderTodoList()}
       {renderMonth(day)}
-      <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={dayjs(day).day()} monthIdx={dayjs(day).month()}>
+      <css.BottomRightDay className="bottom-right-day" isToday={isTodayBool} dayInWeekIdx={dayjs(day).day()} monthIdx={dayjs(day).month()}>
         {day.substring(8).replace(/^0/, '')}
       </css.BottomRightDay>
     </css.Td>
