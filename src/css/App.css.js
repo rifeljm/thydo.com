@@ -17,11 +17,7 @@ css.GlobalStyle = createGlobalStyle`
       font-weight: 500;
       src: url('../fonts/dosis-v11-latin-500.eot'); /* IE9 Compat Modes */
       src: local(''),
-           url('../fonts/dosis-v11-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-           url('../fonts/dosis-v11-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
-           url('../fonts/dosis-v11-latin-500.woff') format('woff'), /* Modern Browsers */
-           url('../fonts/dosis-v11-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
-           url('../fonts/dosis-v11-latin-500.svg#Dosis') format('svg'); /* Legacy iOS */
+           url('../fonts/dosis-v11-latin-500.woff2') format('woff2');
     }
     @font-face {
       font-family: 'Roboto';
@@ -29,11 +25,7 @@ css.GlobalStyle = createGlobalStyle`
       font-weight: 400;
       src: url('../fonts/roboto-v20-latin-regular.eot'); /* IE9 Compat Modes */
       src: local('Roboto'), local('Roboto-Regular'),
-           url('../fonts/roboto-v20-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-           url('../fonts/roboto-v20-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
-           url('../fonts/roboto-v20-latin-regular.woff') format('woff'), /* Modern Browsers */
-           url('../fonts/roboto-v20-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
-           url('../fonts/roboto-v20-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
+           url('../fonts/roboto-v20-latin-regular.woff2') format('woff2');
     }
     padding: 0;
     margin: 0;
