@@ -65,7 +65,9 @@ app.get('/:id?', async (req, res) => {
     if (user || schemaExistsForCookie) {
       const email = user ? user.email : null;
       data = await api._getAllEvents(email || cookie);
-      data.user = { ...user, settings: user.settings || {} };
+      if (user) {
+        data.user = { ...user, settings: user.settings || {} };
+      }
     }
   }
   data.googleSSO = googleSsoUrl;
