@@ -26,6 +26,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(favicon(__dirname + '/favicon.ico'));
 app.use('/js', express.static(path.join(__dirname, 'dist/js')));
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 
 const api = require('./api.js');
 
@@ -65,7 +66,9 @@ app.get('/:id?', async (req, res) => {
     if (user || schemaExistsForCookie) {
       const email = user ? user.email : null;
       data = await api._getAllEvents(email || cookie);
-      data.user = { ...user, settings: user.settings || {} };
+      if (user) {
+        data.user = { ...user, settings: user.settings || {} };
+      }
     }
   }
   data.googleSSO = googleSsoUrl;
