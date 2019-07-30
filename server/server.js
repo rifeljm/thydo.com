@@ -26,6 +26,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(favicon(__dirname + '/favicon.ico'));
 app.use('/js', express.static(path.join(__dirname, 'dist/js')));
+app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 
 const api = require('./api.js');
 
