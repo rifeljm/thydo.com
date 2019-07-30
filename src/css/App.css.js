@@ -2,7 +2,7 @@ import { createGlobalStyle } from 'styled-components';
 
 const css = {};
 
-const fontFamily = `'Roboto', sans-serif`;
+const fontFamily = 'Roboto, sans-serif';
 
 css.GlobalStyle = createGlobalStyle`
   * {
@@ -11,22 +11,6 @@ css.GlobalStyle = createGlobalStyle`
        box-sizing: border-box;
   }
   body {
-    @font-face {
-      font-family: 'Dosis';
-      font-style: normal;
-      font-weight: 500;
-      src: url('../fonts/dosis-v11-latin-500.eot'); /* IE9 Compat Modes */
-      src: local(''),
-           url('../fonts/dosis-v11-latin-500.woff2') format('woff2');
-    }
-    @font-face {
-      font-family: 'Roboto';
-      font-style: normal;
-      font-weight: 400;
-      src: url('../fonts/roboto-v20-latin-regular.eot'); /* IE9 Compat Modes */
-      src: local('Roboto'), local('Roboto-Regular'),
-           url('../fonts/roboto-v20-latin-regular.woff2') format('woff2');
-    }
     padding: 0;
     margin: 0;
     font-family: ${fontFamily};
@@ -37,9 +21,6 @@ css.GlobalStyle = createGlobalStyle`
     }
     user-select: none;
     background: #fbfbfb;
-  }
-  .bottom-right-day {
-    font-family: Dosis;
   }
   input, textarea {
     font-family: ${fontFamily};
