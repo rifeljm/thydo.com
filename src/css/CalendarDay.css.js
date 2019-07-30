@@ -41,6 +41,7 @@ css.emptyTd = styled.div`
 `;
 
 css.BottomRightDay = styled.div`
+  font-family: Dosis, sans-serif;
   position: absolute;
   bottom: -6px;
   right: 8px;
@@ -49,7 +50,7 @@ css.BottomRightDay = styled.div`
 `;
 
 css.DayOfWeek = styled.div`
-  font-family: Dosis;
+  font-family: Dosis, sans-serif;
   position: absolute;
   top: -30px;
   border: 0;
@@ -60,7 +61,7 @@ css.DayOfWeek = styled.div`
 `;
 
 css.Month = styled.div`
-  font-family: Dosis;
+  font-family: Dosis, sans-serif;
   position: absolute;
   top: -115px;
   font-size: 45px;
@@ -68,7 +69,7 @@ css.Month = styled.div`
   color: #fff;
   left: -2px;
   padding: 5px 10px 5px 10px;
-  background-color: ${props => setLightness(0.64, monthColors[props.colorIdx])};
+  background-color: ${props => rgba(monthColors[props.colorIdx], 0.6)};
   border-radius: 5px;
 `;
 
