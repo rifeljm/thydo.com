@@ -1,12 +1,12 @@
 import styled from 'styled-components';
-import { setLightness } from 'polished';
+import { rgba } from 'polished';
 
 import { monthColors } from '../common/utils.js';
 
 const css = {};
 
 css.multiDay = styled.div`
-  background-color: ${props => setLightness(0.64, monthColors[props.colorIdx])};
+  background-color: ${props => rgba(monthColors[props.colorIdx], 0.6)};
   border-radius: 3px;
   color: #fff;
   padding: 0 2px 1px 5px;
