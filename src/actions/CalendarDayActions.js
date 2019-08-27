@@ -127,3 +127,37 @@ export const keyDownEvent = store => e => {
     e.preventDefault();
   }
 };
+
+export const onDragOverEvent = store => (e, day) => {
+  e.preventDefault();
+  if (day !== store.draggedDay && !store.highlightObjects[day] && store.draggedEvent) {
+    store.highlightObjects[day] = true;
+  }
+};
+
+export const onDragLeaveEvent = store => (e, day) => {
+  if (store.highlightObjects[day]) {
+    delete store.highlightObjects[day];
+  }
+};
+
+export const onDropEvent = store => (e, targetDay) => {
+  /* time event only! (because drop event on this day cell fires on todos too) */
+  if (store.draggedEvent) {
+    const id = store.draggedEvent;
+    if (!toJS(store.timeEvents)[targetDay]) {
+      store.timeEvents[targetDay] = {};
+    }
+    let todo = { ...store.timeEvents[store.draggedDay][id], y: targetDay };
+    store.timeEvents[targetDay][id] = todo;
+    delete store.timeEvents[store.draggedDay][id];
+    delete store.draggedEvent;
+    delete store.draggedDay;
+    delete store.highlightObjects[targetDay];
+    axios.put('/api/todo', { id, todo, moved: true });
+  }
+};
+
+export const onDragStartEvent = store => (e, day) => {
+  store.draggedDay = day;
+};

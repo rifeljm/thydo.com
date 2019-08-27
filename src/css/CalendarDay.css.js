@@ -69,7 +69,7 @@ css.Month = styled.div`
   color: #fff;
   left: -2px;
   padding: 5px 10px 5px 10px;
-  background-color: ${props => rgba(monthColors[props.colorIdx], 0.6)};
+  background-color: ${props => rgba(monthColors[props.colorIdx], 0.7)};
   border-radius: 5px;
 `;
 

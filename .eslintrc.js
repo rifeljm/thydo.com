@@ -14,7 +14,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: 'module',
   },
-  plugins: ['babel', 'react'],
+  plugins: ['babel', 'react', 'react-hooks'],
   rules: {
     strict: [2, 'never'],
     'react/jsx-uses-react': 2,
@@ -23,6 +23,8 @@ module.exports = {
     'react/prop-types': 2,
     'no-console': 1,
     'react/no-unused-state': 2,
+    'react-hooks/rules-of-hooks': 2,
+    'react-hooks/exhaustive-deps': 1,
   },
   settings: {
     react: {

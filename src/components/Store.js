@@ -12,10 +12,14 @@ const createStore = () => {
     highlightObjects: {},
     visibleWeeks: null,
     multiDay: {},
+    timeEvents: {},
     showUserDropdown: false,
     initialTopDates: false,
     settings: {},
     showSettingsModal: false,
+    draggedDay: null,
+    draggedEvent: null,
+    showTodoModal: null,
   };
   return store;
 };

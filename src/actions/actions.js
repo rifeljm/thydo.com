@@ -13,6 +13,6 @@ const actions = allActions.reduce((prev, curr) => {
 
 exports.useActions = store => {
   return Object.keys(actions).reduce((prev, key) => {
-    return Object.assign(prev, { [key]: actions[key](store) });
+    return { ...prev, [key]: actions[key](store) };
   }, {});
 };

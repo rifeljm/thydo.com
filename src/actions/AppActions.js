@@ -1,10 +1,16 @@
-import { toJS } from 'mobx';
+import { toJS, observe } from 'mobx';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
 import { fromToDays } from '../common/utils.js';
 
 const dayHeight = 156;
+
+const isSafari =
+  /constructor/i.test(window.HTMLElement) ||
+  (function(p) {
+    return p.toString() === '[object SafariRemoteNotification]';
+  })(!window['safari'] || (typeof safari !== 'undefined' && safari.pushNotification));
 
 const addElements = (weekCount, day) => {
   if (weekCount < 0) {
@@ -50,7 +56,20 @@ export const paintCalendar = store => () => {
   const weeks = Math.round(window.innerHeight / 334);
   let dates = addElements(weeks + 4, monday);
   dates.splice(0, 0, ...addElements(-weeks + 1, monday));
-  store.dates = dates;
+  store.dates.splice(0, store.dates.length, ...dates);
+  observe(store.dates, () => {
+    // console.log('store.dates', toJS(store.dates).length);
+    if (window.pageYOffset === window.app.yOffset && window.pageYOffset < 50) {
+      window.scrollTo(0, document.body.scrollHeight - window.app.scrollHeight);
+    } else if (window.pageYOffset === window.app.yOffset && window.app.scrollDirection === 'down') {
+      window.scrollTo(0, window.pageYOffset - (window.app.scrollHeight - document.body.scrollHeight));
+    }
+    delete window.app.scrollDirection;
+    setTimeout(() => {
+      window.app.preventWheel = false;
+    }, 0);
+  });
+
   store.visibleWeeks = Object.keys(dates).length / 7 + 4;
 };
 
@@ -68,6 +87,20 @@ export const processInitData = store => allEntries => {
     store.multiDay = initMultiDay;
     delete allEntries.multiDay;
   }
+  const initTimeEvents = {};
+  if (allEntries.timeEvents) {
+    Object.keys(allEntries.timeEvents).forEach(eventId => {
+      let event = allEntries.timeEvents[eventId];
+      const day = event.y;
+      if (!initTimeEvents[day]) {
+        initTimeEvents[day] = {};
+      }
+      delete event.y;
+      initTimeEvents[day][eventId] = event;
+    });
+    delete allEntries.timeEvents;
+  }
+  store.timeEvents = initTimeEvents;
   window.app.googleSSO = allEntries.googleSSO;
   delete allEntries.googleSSO;
   if (allEntries.user !== undefined) {
@@ -80,25 +113,26 @@ export const processInitData = store => allEntries => {
 };
 
 function scrollUp(store) {
-  const offsetBefore = window.pageYOffset;
-  let heightBefore = document.body.scrollHeight;
+  window.app.scrollDirection = 'up';
+  window.app.preventWheel = true;
+  window.app.scrollHeight = document.body.scrollHeight;
+  window.app.yOffset = window.pageYOffset;
   addWeeks(store)(-4);
-  if (window.pageYOffset === 0) {
-    window.scrollTo(0, document.body.scrollHeight - heightBefore + window.pageYOffset);
-  }
-  heightBefore = document.body.scrollHeight;
   removeWeeks(store)('bottom');
-  if (offsetBefore === window.pageYOffset) {
-    window.scrollTo(0, heightBefore - document.body.scrollHeight);
-  }
 }
 
 export const onScrollEvent = store => () => {
-  if (window.pageYOffset < 50) {
+  // console.log('yOffset:', window.pageYOffset);
+  const aboveTop = window.pageYOffset < 50;
+  const belowBottom = window.pageYOffset >= document.body.scrollHeight - window.innerHeight;
+  if (aboveTop) {
     scrollUp(store);
-  } else if (window.pageYOffset >= document.body.scrollHeight - window.innerHeight) {
+  } else if (belowBottom) {
     addWeeks(store)(4);
-    window.pageYOffset; /* do not remove this line! browser won't scroll as it should if removed */
+    window.app.scrollDirection = 'down';
+    window.app.scrollHeight = document.body.scrollHeight;
+    window.app.yOffset = window.pageYOffset;
+    window.app.preventWheel = true;
     removeWeeks(store)('top');
   }
 };
@@ -111,8 +145,8 @@ export const scrollToToday = store => force => {
   } else {
     /* otherwise, build DOM around today */
     store.toToday = false;
-    window.scroll(0, 0);
     paintCalendar(store)();
+    window.scroll(0, 0);
   }
 };
 
@@ -129,4 +163,11 @@ export const saveSettings = store => settings => {
   axios.put('/api/settings', { settings: store.settings }).then(() => {
     /* todo: implement response actions */
   });
+};
+
+export const onWheel = store => e => {
+  if (isSafari && window.app.preventWheel) {
+    e.preventDefault();
+  }
+  return true;
 };
