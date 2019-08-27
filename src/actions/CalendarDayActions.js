@@ -143,7 +143,7 @@ export const onDragLeaveEvent = store => (e, day) => {
 
 export const onDropEvent = store => (e, targetDay) => {
   /* time event only! (because drop event on this day cell fires on todos too) */
-  if (store.draggedEvent) {
+  if (store.draggedEvent && toJS(store.draggedDay) !== targetDay) {
     const id = store.draggedEvent;
     if (!toJS(store.timeEvents)[targetDay]) {
       store.timeEvents[targetDay] = {};
