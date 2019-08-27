@@ -14,22 +14,30 @@ function TodoModal({ id }) {
   const { actions } = useStore();
   const textareaRef = React.useRef();
   const descRef = React.useRef();
-  const todo = actions.getTodoData(id);
-  let [title, changeTitle] = React.useState(todo.t);
-  let [description, setDescription] = React.useState(todo.d);
+  let [title, changeTitle] = React.useState('');
+  let [description, setDescription] = React.useState('');
+  let [todo, setTodo] = React.useState({});
 
   React.useEffect(() => {
-    autosize(textareaRef.current);
-    autosize(descRef.current);
-  }, []);
+    const todo = actions.getTodoData(id);
+    setTodo(todo);
+    if (!todo.id) {
+      navigate('/');
+    }
+    changeTitle(todo.h ? `${todo.h} ${todo.t}` : todo.t);
+    setDescription(todo.d);
+    setTimeout(() => {
+      autosize(textareaRef.current);
+      autosize(descRef.current);
+    }, 0);
+  }, [id]);
 
-  if (!todo.id) {
-    navigate('/');
-    return null;
+  const colorIdx = todo.day ? parseInt(todo.day.substring(5, 7), 10) - 1 : null;
+
+  function isModified() {
+    const titleChanged = todo.h ? `${todo.h} ${todo.t}` !== title : todo.t !== title;
+    return titleChanged || (todo.d !== description && description !== '') || (todo.d && description === '');
   }
-
-  const colorIdx = parseInt(todo.day.substring(5, 7), 10) - 1;
-  const active = todo.t !== title || (todo.d !== description && description !== '') || (todo.d && description === '');
 
   function onOverlayClick() {
     navigate('/');
@@ -114,6 +122,8 @@ function TodoModal({ id }) {
       </React.Fragment>
     );
   }
+
+  const active = isModified();
 
   return (
     <css.Modal>

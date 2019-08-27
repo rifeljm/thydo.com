@@ -9,6 +9,7 @@ import { useStore } from './Store.js';
 import Todo from './Todo.js';
 import { upFirst } from '../common/utils.js';
 import MultiDayEvent from './MultiDayEvent.js';
+import TimeEvent from './TimeEvent.js';
 
 import css from '../css/CalendarDay.css';
 
@@ -26,12 +27,10 @@ function isThisDayInWeek(day) {
   return dayjs(new Date()).day() === dayjs(day).day();
 }
 
-function mouseEnterTodo() {
-  preventClick = true;
-}
-
-function mouseLeaveTodo() {
-  preventClick = false;
+function timeEventSortFn(a, b) {
+  const aPad = a.h.indexOf(':') < 2 ? `0${a.h}` : a.h;
+  const bPad = b.h.indexOf(':') < 2 ? `0${b.h}` : b.h;
+  return aPad > bPad ? 1 : -1;
 }
 
 function CalendarDay({ day }) {
@@ -158,7 +157,16 @@ function CalendarDay({ day }) {
 
   function renderTodos(todos) {
     return todos.map((todo, idx) => {
-      return <Todo idx={idx} todo={todo} key={todo.id} mouseEnterTodo={mouseEnterTodo} mouseLeaveTodo={mouseLeaveTodo} day={day} />;
+      return (
+        <Todo
+          idx={idx}
+          todo={todo}
+          key={todo.id}
+          mouseEnterTodo={() => (preventClick = true)}
+          mouseLeaveTodo={() => (preventClick = false)}
+          day={day}
+        />
+      );
     });
   }
 
@@ -188,6 +196,20 @@ function CalendarDay({ day }) {
     return null;
   }
 
+  function renderTimeEvents() {
+    let timeEvents = toJS(store.timeEvents)[day];
+    if (timeEvents && Object.keys(timeEvents).length) {
+      return Object.keys(timeEvents)
+        .map(eventId => {
+          return { ...timeEvents[eventId], id: eventId };
+        })
+        .sort(timeEventSortFn)
+        .map(event => {
+          return <TimeEvent key={event.id} event={event} day={day} />;
+        });
+    }
+  }
+
   return (
     <css.Td
       isToday={isTodayBool}
@@ -198,9 +220,13 @@ function CalendarDay({ day }) {
       onMouseLeave={() => mouseAction({ action: 'mouseLeave', day: day })}
       onClick={onClickEvent}
       highlight={store.highlightObjects[day]}
+      onDrop={e => actions.onDropEvent(e, day)}
+      onDragOver={e => actions.onDragOverEvent(e, day)}
+      onDragLeave={e => actions.onDragLeaveEvent(e, day)}
     >
       {renderDayOfWeek()}
       {renderMultiDayEvents()}
+      {renderTimeEvents()}
       {renderTodoList()}
       {renderMonth(day)}
       <css.BottomRightDay isToday={isTodayBool} dayInWeekIdx={dayjs(day).day()} monthIdx={dayjs(day).month()}>

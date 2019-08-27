@@ -56,6 +56,8 @@ css.TitleTextarea = styled.textarea`
   resize: none;
   display: block;
   text-decoration: ${props => (props.done ? 'line-through' : 'inherit')};
+  height: 25px;
+  margin-bottom: 10px;
 `;
 
 css.Table = styled.div`

@@ -18,27 +18,28 @@ let initialScrollHeight;
 
 function App({ id }) {
   const { store, actions } = useStore();
-
+  const initialTopDates = toJS(store.initialTopDates);
   React.useEffect(() => {
     window.addEventListener('keydown', actions.keyDownEvent);
     window.addEventListener('scroll', actions.onScrollEvent);
     window.addEventListener('click', actions.onClick);
+    document.body.addEventListener('mousewheel', actions.onWheel);
     actions.addWeeks(-4); /* useEffect will fix scroll position after weeks render */
     store.initialTopDates = true;
   }, []);
 
   React.useLayoutEffect(() => {
     /* when adding dates on top of the page for the first time, manually scroll down */
-    if (store.initialTopDates) {
+    if (initialTopDates) {
       window.scroll(0, document.body.scrollHeight - initialScrollHeight);
     }
     initialScrollHeight = document.body.scrollHeight;
-  }, [toJS(store.initialTopDates)]);
+  }, [initialTopDates]);
 
   return (
     <React.Fragment>
       <css.GlobalStyle />
-      {parseInt(id, 10) > 0 ? <TodoModal id={parseInt(id, 10)} /> : null}
+      {id ? <TodoModal id={parseInt(id, 10)} /> : null}
       {store.showSettingsModal ? <SettingsModal /> : null}
       <Header />
       <Weeks dates={store.dates} />

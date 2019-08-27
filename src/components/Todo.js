@@ -50,13 +50,13 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
       evt.preventDefault();
       evt.stopPropagation();
       todoInputRef.current.value = '';
-      actions.saveTodo(day, value);
+      actions.postTodo(day, value);
     }
     if (evt.keyCode === 9) {
       evt.preventDefault();
       if (value) {
         todoInputRef.current.value = '';
-        actions.saveTodo(day, value, { createNew: true });
+        actions.postTodo(day, value, { createNew: true });
       }
     }
   }

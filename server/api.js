@@ -155,6 +155,9 @@ api.postTodo = async (req, res) => {
   const schema = res.locals.schema;
   const day = req.body.day;
   const newTodo = { ...req.body };
+  if (newTodo.h) {
+    newTodo.y = newTodo.day;
+  }
   delete newTodo.day;
   let sql, rows, response;
   sql = 'BEGIN;';
@@ -171,16 +174,19 @@ api.postTodo = async (req, res) => {
               AND trash IS NULL`;
     const todosSortResult = await pool.query(sql, [day]);
     rows = todosSortResult.rows;
-    if (rows && !rows.length) {
-      sql = `INSERT INTO "${schema}".todo_ids (day, todos)
-                  VALUES ($1, $2)`;
-      await pool.query(sql, [day, [insertId]]);
-    } else {
-      sql = `UPDATE "${schema}".todo_ids
-                SET todos = $1
-              WHERE day = $2
-                AND trash IS NULL`;
-      await pool.query(sql, [rows[0].todos.concat(insertId), day]);
+    if (!newTodo.h) {
+      /* if this is a timed event, don't save it to sorted list */
+      if (rows && !rows.length) {
+        sql = `INSERT INTO "${schema}".todo_ids (day, todos)
+                    VALUES ($1, $2)`;
+        await pool.query(sql, [day, [insertId]]);
+      } else {
+        sql = `UPDATE "${schema}".todo_ids
+                  SET todos = $1
+                WHERE day = $2
+                  AND trash IS NULL`;
+        await pool.query(sql, [rows[0].todos.concat(insertId), day]);
+      }
     }
   }
   if (insertId) {
@@ -209,8 +215,34 @@ api.postTodo = async (req, res) => {
 api._getAllEvents = async schema => {
   const responseObject = await api._getTodos(schema);
   const multiDayArray = await api._getMultipleDayEvents(schema);
+  const timeEvents = await api._getTimeEvents(schema);
   responseObject.multiDay = multiDayArray;
+  responseObject.timeEvents = timeEvents;
+  console.log(responseObject);
   return responseObject;
+};
+
+api._getTimeEvents = async schema => {
+  let sql = `
+    SELECT id,
+           todo
+      FROM "${schema}".todos
+     WHERE todo->>'h' IS NOT NULL
+       AND todo->>'y' IS NOT NULL
+       AND trash IS NULL
+  `;
+  const result = await pool.query(sql);
+  if (result && result.rows && result.rows.length) {
+    let events = {};
+    result.rows.forEach(row => {
+      let todo = row.todo;
+      let id = row.id;
+      delete todo.id;
+      events[id] = todo;
+    });
+    return events;
+  }
+  return {};
 };
 
 api._getTodos = async schema => {
@@ -303,11 +335,11 @@ api.deleteTodo = async (req, res) => {
     if (result && Array.isArray(result.rows) && result.rows.length) {
       const row = result.rows[0];
       const newTodos = row.todos.filter(todoId => id !== todoId);
+      sql = `UPDATE "${schema}".todo_ids
+                SET trash = $1
+              WHERE id = $2`;
+      await pool.query(sql, [true, row.id]);
       if (newTodos.length) {
-        sql = `UPDATE "${schema}".todo_ids
-                  SET trash = $1
-                WHERE id = $2`;
-        await pool.query(sql, [true, row.id]);
         sql = `INSERT INTO "${schema}".todo_ids
                            (day, todos)
                     VALUES ($1, $2)`;
@@ -336,7 +368,18 @@ api.schemaExists = async cookie => {
   return false;
 };
 
+api.sendError = (res, message) => {
+  res.status(400);
+  res.send({ _error: message });
+};
+
 api.putTodo = async (req, res) => {
+  if (!req.body.todo && !req.body.todo.y) {
+    return api.sendError(res, 'Missing todo.y (day)');
+  }
+  const day = req.body.todo.y;
+  const id = req.body.id;
+  const moved = req.body.moved;
   await pool.query('BEGIN');
   const schema = res.locals.schema;
   let sql = `
@@ -344,16 +387,61 @@ api.putTodo = async (req, res) => {
       FROM "${schema}".todos
      WHERE id = $1
        AND trash IS NULL`;
-  let result = await pool.query(sql, [req.body.id]);
+  let result = await pool.query(sql, [id]);
+  let newTodo = {};
   if (result && result.rows && result.rows.length) {
-    const todo = result.rows[0].todo;
+    const oldTodo = result.rows[0].todo;
     sql = `UPDATE "${schema}".todos
               SET todo = $1
             WHERE id = $2`;
-    await pool.query(sql, [Object.assign(todo, req.body.todo), req.body.id]);
+    newTodo = req.body.todo;
+    if (!newTodo.h) {
+      delete newTodo.y;
+    }
+    await pool.query(sql, [newTodo, id]);
+    sql = `
+      SELECT todos
+        FROM "${schema}".todo_ids
+       WHERE day = $1
+         AND trash IS NULL`;
+    result = await pool.query(sql, [day]);
+    const sortExists = result && result.rows && result.rows.length;
+    let daySortArray = sortExists ? result.rows[0].todos.concat(id) : [id];
+
+    /* if we REMOVED event's hour on FE */
+    if (oldTodo.h && !req.body.todo.h && !moved) {
+      sql = `
+        UPDATE "${schema}".todo_ids
+           SET trash = true
+         WHERE day = $1
+           AND trash IS NULL`;
+      result = await pool.query(sql, [day]);
+      sql = `
+        INSERT INTO "${schema}".todo_ids
+                    (day, todos)
+             VALUES ($1, $2)`;
+      result = await pool.query(sql, [day, daySortArray]);
+    }
+    /* if we ADDED event's hour in title on the FE */
+    if (!oldTodo.h && req.body.todo.h && !moved) {
+      sql = `
+        UPDATE "${schema}".todo_ids
+           SET trash = true
+         WHERE day = $1
+           AND trash IS NULL`;
+      result = await pool.query(sql, [day]);
+      const newSort = daySortArray.filter(todoId => todoId !== id);
+      if (newSort.length) {
+        sql = `
+          INSERT INTO "${schema}".todo_ids
+                      (day, todos)
+              VALUES ($1, $2)`;
+        result = await pool.query(sql, [day, newSort]);
+      }
+    }
   }
   await pool.query('COMMIT');
-  res.send(req.body);
+  res.send({ todo: req.body.todo, id });
 };
 
 api.putSettings = async (req, res) => {
