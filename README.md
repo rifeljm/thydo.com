@@ -34,12 +34,11 @@ At the moment Thydo only works in Google Chrome browser
 
 ### Todo
 
-- e2e tests, unit tests
-- time events (meetings?)
-- undo
 - lists (subtodos, shopping list,...) inside modal
-- custom colors
 - history (action log)
+- e2e tests, unit tests
+- undo
+- custom colors
 - PWA app (push notifications)
 - integrations: instagram, twitter, google photos,...
 - sharing

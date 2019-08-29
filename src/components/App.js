@@ -10,8 +10,6 @@ import Weeks from './Weeks.js';
 import TodoModal from './TodoModal.js';
 import SettingsModal from './SettingsModal.js';
 
-import css from '../css/App.css';
-
 history.scrollRestoration = 'manual';
 
 let initialScrollHeight;
@@ -38,7 +36,6 @@ function App({ id }) {
 
   return (
     <React.Fragment>
-      <css.GlobalStyle />
       {id ? <TodoModal id={parseInt(id, 10)} /> : null}
       {store.showSettingsModal ? <SettingsModal /> : null}
       <Header />
