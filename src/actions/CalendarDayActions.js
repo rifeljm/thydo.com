@@ -1,43 +1,8 @@
 import axios from 'axios';
 import { toJS } from 'mobx';
-import { navigate } from '@reach/router';
 import dayjs from 'dayjs';
 
-/**
- * find editing todo in the store and cancel it
- */
-export const cancelTodo = store => () => {
-  Object.keys(toJS(store.todos)).forEach(day => {
-    const dayTodos = toJS(store.todos)[day] || [];
-    if (dayTodos.map(todo => todo.id).indexOf(-1) > -1) {
-      store.todos[day] = dayTodos.filter(todo => todo.id !== -1);
-    }
-  });
-};
-
-export const showNewTodoInput = store => (evt, day) => {
-  const todoInput = document.querySelector('.todo-input');
-  if (todoInput) {
-    if (todoInput.value !== '') {
-      /* if we're editing another todo and there's already some text in it, cancel! */
-      todoInput.focus();
-      if (evt) {
-        return evt.preventDefault();
-      }
-    } else {
-      cancelTodo(store)();
-    }
-  }
-  const todos = toJS(store.todos[day]) || [];
-  const todoExists = todos.map(todo => todo.id).indexOf(-1) > -1;
-  if ((!evt || evt.clientY > 50 || evt.keyCode === 13) && !todoExists) {
-    if (store.todos[day]) {
-      store.todos[day] = toJS(store.todos[day]).concat({ id: -1 });
-    } else {
-      store.todos[day] = [{ id: -1 }];
-    }
-  }
-};
+import { cancelTodo } from './TodoActions.js';
 
 exports.handleOnSort = store => (evt, day, dom) => {
   const isSource = evt.from === dom; /* is this the list we took the element from? */
@@ -114,20 +79,6 @@ exports.showMultiDayInput = store => day => {
   window.app.multiDayStart = startDay;
 };
 
-export const keyDownEvent = store => e => {
-  if (e.keyCode === 27 && window.location.pathname.length > 1) {
-    navigate('/');
-  }
-  if (e.keyCode === 27 && store.showSettingsModal) {
-    store.showSettingsModal = false;
-  }
-  if (e.keyCode === 13 && !e.shiftKey && !store.showSettingsModal) {
-    const today = dayjs().format('YYYY-MM-DD');
-    showNewTodoInput(store)(e, today);
-    e.preventDefault();
-  }
-};
-
 export const onDragOverEvent = store => (e, day) => {
   e.preventDefault();
   if (day !== store.draggedDay && !store.highlightObjects[day] && store.draggedEvent) {
@@ -160,4 +111,28 @@ export const onDropEvent = store => (e, targetDay) => {
 
 export const onDragStartEvent = store => (e, day) => {
   store.draggedDay = day;
+};
+
+export const showNewTodoInput = store => (evt, day) => {
+  const todoInput = document.querySelector('.todo-input');
+  if (todoInput) {
+    if (todoInput.value !== '') {
+      /* if we're editing another todo and there's already some text in it, cancel! */
+      todoInput.focus();
+      if (evt) {
+        return evt.preventDefault();
+      }
+    } else {
+      cancelTodo(store)();
+    }
+  }
+  const todos = toJS(store.todos[day]) || [];
+  const todoExists = todos.map(todo => todo.id).indexOf(-1) > -1;
+  if ((!evt || evt.clientY > 50 || evt.keyCode === 13) && !todoExists) {
+    if (store.todos[day]) {
+      store.todos[day] = toJS(store.todos[day]).concat({ id: -1 });
+    } else {
+      store.todos[day] = [{ id: -1 }];
+    }
+  }
 };

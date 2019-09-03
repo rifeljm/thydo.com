@@ -4,7 +4,11 @@ import { observer } from 'mobx-react-lite';
 import CalendarDay from './CalendarDay.js';
 import { toJS } from 'mobx';
 
+import { useStore } from './Store.js';
+
 import css from '../css/Weeks.css';
+
+history.scrollRestoration = 'manual';
 
 function renderDays(week) {
   return week.map(day => {
@@ -12,7 +16,27 @@ function renderDays(week) {
   });
 }
 
-const Weeks = ({ dates }) => {
+let initialScrollHeight;
+
+function Weeks({ dates }) {
+  const { store, actions } = useStore();
+  const initialTopDates = toJS(store.initialTopDates);
+
+  React.useEffect(() => {
+    window.addEventListener('scroll', actions.onScrollEvent);
+    document.body.addEventListener('mousewheel', actions.onWheel);
+    actions.addWeeks(-4); /* after we added content on top, useLayoutEffect will fix scroll position */
+    store.initialTopDates = true;
+  }, []);
+
+  React.useLayoutEffect(() => {
+    /* when adding dates on top of the page for the first time, manually scroll down */
+    if (initialTopDates) {
+      window.scroll(0, document.body.scrollHeight - initialScrollHeight);
+    }
+    initialScrollHeight = document.body.scrollHeight;
+  }, [initialTopDates]);
+
   const arrayedDates = dates.reduce((prev, day, idx) => {
     if (idx % 7 === 0) {
       prev.push([day]);
@@ -52,7 +76,7 @@ const Weeks = ({ dates }) => {
       <css.WeeksTable>{renderDates}</css.WeeksTable>
     </css.MainTableWrapper>
   );
-};
+}
 
 Weeks.propTypes = {
   dates: PropTypes.array.isRequired,
