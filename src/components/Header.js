@@ -10,19 +10,8 @@ import css from '../css/Header.css';
 function Header() {
   const { store, actions } = useStore();
 
-  function dropdownAction(action) {
-    store.showUserDropdown = false;
-    if (action === 'logout') {
-      document.cookie = 'thydo_user=; expires=-999999999';
-      document.location = '/';
-    }
-    if (action === 'settings') {
-      store.showSettingsModal = true;
-    }
-  }
-
   function renderActions() {
-    const actions = [
+    const dropdownActions = [
       {
         action: 'settings',
         name: 'Settings',
@@ -34,9 +23,9 @@ function Header() {
         icon: signOutSvg,
       },
     ];
-    return actions.map(elem => {
+    return dropdownActions.map(elem => {
       return (
-        <css.DropdownElement key={elem.action} onClick={() => dropdownAction(elem.action)}>
+        <css.DropdownElement key={elem.action} onClick={() => actions.dropdownAction(elem.action)}>
           <css.DropdownSvg dangerouslySetInnerHTML={{ __html: elem.icon }} />
           <css.DropdownText>{_tr(elem.name)}</css.DropdownText>
         </css.DropdownElement>
@@ -44,28 +33,18 @@ function Header() {
     });
   }
 
-  function renderDropdown() {
-    if (!store.showUserDropdown) return null;
-    return <css.accountDropdownModal>{renderActions()}</css.accountDropdownModal>;
-  }
-
-  function googleSsoClick(e) {
-    e.stopPropagation();
-    store.showUserDropdown = !store.showUserDropdown;
-  }
-
   function renderGoogleSSO() {
     if (window.app.user) {
       const user = window.app.user;
       return (
         <React.Fragment>
-          {renderDropdown()}
+          {store.showUserDropdown ? <css.accountDropdownModal>{renderActions()}</css.accountDropdownModal> : null}
           <css.GoogleSSO>
-            <css.GoogleNameEmail onClick={googleSsoClick}>
+            <css.GoogleNameEmail onClick={actions.googleSsoClick}>
               <css.GoogleName>{user.display_name}</css.GoogleName>
               <css.GoogleEmail>{user.email}</css.GoogleEmail>
             </css.GoogleNameEmail>
-            <css.GoogleAvatar src={user.avatar} onClick={googleSsoClick} />
+            <css.GoogleAvatar src={user.avatar} onClick={actions.googleSsoClick} />
           </css.GoogleSSO>
         </React.Fragment>
       );

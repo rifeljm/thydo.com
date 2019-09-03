@@ -44,7 +44,7 @@ function Todo({ idx, todo, mouseEnterTodo, mouseLeaveTodo, day }) {
     if (evt.keyCode === 27) {
       evt.preventDefault();
       mouseLeaveTodo();
-      actions.cancelTodo(day);
+      actions.cancelTodo();
     }
     if (evt.keyCode === 13 && !evt.shiftKey) {
       evt.preventDefault();

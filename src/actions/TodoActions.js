@@ -2,6 +2,16 @@ import axios from 'axios';
 import { toJS } from 'mobx';
 import { parseHour } from '../common/utils.js';
 
+/**
+ * find editing todos in the store and cancel them
+ */
+export const cancelTodo = store => () => {
+  Object.keys(toJS(store.todos)).forEach(day => {
+    const dayTodos = toJS(store.todos)[day] || [];
+    store.todos[day] = dayTodos.filter(todo => todo.id > -1);
+  });
+};
+
 exports.postTodo = store => (day, title, options = {}) => {
   let nextMinId;
   const todos = toJS(store.todos)[day];
@@ -50,10 +60,6 @@ exports.postTodo = store => (day, title, options = {}) => {
       }
     }
   });
-};
-
-export const cancelTodo = store => day => {
-  store.todos[day] = toJS(store.todos[day]).filter(todo => todo.id !== -1);
 };
 
 export const onBlur = store => (e, day) => {
