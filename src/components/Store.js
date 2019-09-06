@@ -28,6 +28,9 @@ export const StoreProvider = ({ children }) => {
   const store = useLocalStore(createStore);
   const actions = useActions(store);
   actions.processInitData(JSON.parse(document.getElementById('todos_data').innerHTML));
+  console.log(actions);
+  console.log(actions.paintCalendar);
+  console.log(actions.paintCalendar.toString());
   actions.paintCalendar();
   return <StoreContext.Provider value={{ store, actions }}>{children}</StoreContext.Provider>;
 };
