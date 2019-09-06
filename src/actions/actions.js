@@ -27,12 +27,7 @@ const actions = allActions.reduce((prev, curr) => {
 
 exports.useActions = store => {
   return Object.keys(actions).reduce((prev, key) => {
-    if (
-      actions[key]
-        .toString()
-        .split('\n')[0]
-        .indexOf('(store)') > -1
-    ) {
+    if (actions[key].toString().indexOf('return function') > -1) {
       return { ...prev, [key]: actions[key](store) };
     }
     return { ...prev, [key]: actions[key] };
