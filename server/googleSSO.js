@@ -19,7 +19,8 @@ g.getConnectionUrl = auth => {
 };
 
 function getGooglePlusApi(auth) {
-  return google.plus({ version: 'v1', auth });
+  Object.keys(google).forEach(x => console.log('=>', x));
+  return google.oauth2({ version: 'v1', auth });
 }
 
 g.createConnection = () => {
@@ -33,19 +34,16 @@ g.getGoogleAccountFromCode = async code => {
   const tokens = data.tokens;
   auth.setCredentials(tokens);
   const plus = getGooglePlusApi(auth);
-  const me = await plus.people.get({ userId: 'me' });
-  const userGoogleId = me.data.id;
-  const userGoogleEmail = me.data.emails && me.data.emails.length && me.data.emails[0].value;
-  const userGoogleDisplayName = me.data && me.data.displayName;
-  const userGoogleAvatar = me.data.image && me.data.image.url;
-  return {
-    googleId: userGoogleId,
-    email: userGoogleEmail,
-    displayName: userGoogleDisplayName,
-    avatar: userGoogleAvatar,
+  const me = await plus.userinfo.get('me');
+  const retObj = {
+    googleId: me.data.id,
+    email: me.data.email,
+    displayName: me.data.name,
+    avatar: me.data.picture,
     tokens: tokens,
-    lang: me.data.language,
+    lang: me.data.locale,
   };
+    return retObj;
 };
 
 module.exports = g;
