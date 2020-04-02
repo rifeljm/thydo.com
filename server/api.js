@@ -394,7 +394,7 @@ api.putTodo = async (req, res) => {
     sql = `UPDATE "${schema}".todos
               SET todo = $1
             WHERE id = $2`;
-    newTodo = req.body.todo;
+    newTodo = Object.assign(oldTodo, req.body.todo);
     if (!newTodo.h) {
       delete newTodo.y;
     }
