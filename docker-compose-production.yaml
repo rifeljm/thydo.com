@@ -1,4 +1,3 @@
-version: '3'
 services:
   server:
     build:
@@ -20,6 +19,7 @@ services:
       - PGHOST=postgres
     networks:
       - default
+    command: npm start
 
   postgres:
     container_name: thydo_postgres

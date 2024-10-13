@@ -8,6 +8,8 @@ const googleConfig = {
   redirect: process.env.NODE_ENV === 'production' ? 'https://www.thydo.com' : 'http://dev.thydo.com',
 };
 
+console.log(googleConfig);
+
 const defaultScope = ['https://www.googleapis.com/auth/userinfo.email', 'https://www.googleapis.com/auth/userinfo.profile'];
 
 g.getConnectionUrl = auth => {
@@ -20,7 +22,7 @@ g.getConnectionUrl = auth => {
 
 function getGooglePlusApi(auth) {
   Object.keys(google).forEach(x => console.log('=>', x));
-  return google.oauth2({ version: 'v1', auth });
+  return google.oauth2({ version: 'v2', auth });
 }
 
 g.createConnection = () => {

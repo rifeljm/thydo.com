@@ -1,4 +1,4 @@
-FROM mhart/alpine-node:12
+FROM node:22-alpine
 RUN mkdir /app
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH

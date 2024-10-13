@@ -9,8 +9,8 @@
   "dependencies": {
     "cookie-parser": "1.4.4",
     "express": "^4.17.1",
-    "googleapis": "40.0.0",
-    "pg": "7.11.0",
+    "googleapis": "latest",
+    "pg": "^8.13.0",
     "serve-favicon": "2.5.0",
     "ws": "7.0.0"
   }
