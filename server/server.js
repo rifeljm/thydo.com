@@ -74,7 +74,7 @@ app.get('/:id?', async (req, res) => {
   }
   data.googleSSO = googleSsoUrl;
   let html;
-  if (req.headers.host.indexOf('thydo.com') > -1 && req.headers.host.indexOf('dev.thydo.com') === -1) {
+  if (req.headers && req.headers.host && req.headers.host.indexOf('thydo.com') > -1 && req.headers.host.indexOf('dev.thydo.com') === -1) {
     html = productionIndexHtml;
     html = html.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(data)}</script>`);
   } else {
