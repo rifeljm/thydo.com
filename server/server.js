@@ -75,7 +75,9 @@ app.get('/:id?', async (req, res) => {
   }
   data.googleSSO = googleSsoUrl;
   let html;
-  if (req.headers && req.headers.host && req.headers.host.indexOf('u3pm.com') > -1 && req.headers.host.indexOf('dev.u3pm.com') === -1) {
+  const host = (req.headers && req.headers.host) || '';
+  const devHost = host.indexOf('dev.u3pm.com') > -1;
+  if (productionIndexHtml && process.env.NODE_ENV === 'production' && !devHost) {
     html = productionIndexHtml;
     html = html.replace('<!-- json -->', `<script type="application/json" id="todos_data">${JSON.stringify(data)}</script>`);
   } else {
