@@ -1,5 +1,5 @@
 {
-  "name": "Thydo.com",
+  "name": "u3pm.com",
   "scripts": {
     "start": "webpack-dev-server --hot",
     "build": "NODE_ENV=production webpack -p --config webpack.config.production.js"

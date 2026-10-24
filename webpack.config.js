@@ -20,7 +20,7 @@ module.exports = {
   devServer: {
     host: '0.0.0.0',
     port: 80,
-    allowedHosts: ['debian', 'thydo.com', 'dev.thydo.com'],
+    allowedHosts: ['debian', 'u3pm.com', 'dev.u3pm.com'],
   },
   optimization: {
     splitChunks: {

@@ -5,7 +5,7 @@ const g = {};
 const googleConfig = {
   clientId: process.env.GOOGLE_CLIENT_ID,
   clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  redirect: process.env.NODE_ENV === 'production' ? 'https://www.thydo.com' : 'http://dev.thydo.com',
+  redirect: process.env.NODE_ENV === 'production' ? 'https://www.u3pm.com' : 'http://dev.u3pm.com',
 };
 
 console.log(googleConfig);

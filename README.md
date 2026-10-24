@@ -26,7 +26,7 @@ Open browser: http://localhost
 
 ### Production
 
-http://thydo.com
+http://u3pm.com
 
 ### Warning !!!
 
