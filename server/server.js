@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const { randomString, indexHTML } = require('./helpers.js');
 
-const distDir = path.join(__dirname, '../dist');
+const distDir = path.join(__dirname, 'dist');
 const distIndexHtml = path.join(distDir, 'index.html');
 let productionIndexHtml = '';
 if (fs.existsSync(distIndexHtml)) {
