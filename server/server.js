@@ -15,7 +15,8 @@ const fs = require('fs');
 const path = require('path');
 const { randomString, indexHTML } = require('./helpers.js');
 
-const distIndexHtml = './dist/index.html';
+const distDir = path.join(__dirname, '../dist');
+const distIndexHtml = path.join(distDir, 'index.html');
 let productionIndexHtml = '';
 if (fs.existsSync(distIndexHtml)) {
   productionIndexHtml = fs.readFileSync(distIndexHtml, 'UTF8');
@@ -25,7 +26,7 @@ const app = express();
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(favicon(__dirname + '/favicon.ico'));
-app.use('/js', express.static(path.join(__dirname, 'dist/js')));
+app.use('/js', express.static(path.join(distDir, 'js')));
 app.use('/fonts', express.static(path.join(__dirname, 'fonts')));
 app.use('/css', express.static(path.join(__dirname, 'css')));
 
